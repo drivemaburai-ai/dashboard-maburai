@@ -245,6 +245,8 @@
     const CONFIG = {
       USE_GOOGLE_SHEETS: true,
       SPREADSHEET_ID: '1q-InIbqV1y4YaCabqxDEjjA_aU9hPoHyb2foKTnzvBM',
+      GID_DATABASE: null, // Default export (sheet pertama)
+      GID_KEUANGAN: 974641276,
       DEMO_MODE: false
     };
 
@@ -341,12 +343,22 @@
     // DATA FETCHING FROM GOOGLE SHEETS
     async function fetchFromGoogleSheets() {
       try {
-        const url = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets');
-        const csv = await response.text();
-        console.log('CSV Data:', csv);
-        return { success: true, data: csv };
+        // Fetch Database sheet (default/first sheet)
+        const dbUrl = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
+        const dbResponse = await fetch(dbUrl);
+        if (!dbResponse.ok) throw new Error('Gagal mengambil data Database');
+        const dbCsv = await dbResponse.text();
+
+        // Fetch Keuangan sheet
+        const kasUrl = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv&gid=' + CONFIG.GID_KEUANGAN;
+        const kasResponse = await fetch(kasUrl);
+        if (!kasResponse.ok) throw new Error('Gagal mengambil data Keuangan');
+        const kasCsv = await kasResponse.text();
+
+        console.log('Database CSV:', dbCsv.substring(0, 500));
+        console.log('Keuangan CSV:', kasCsv.substring(0, 500));
+
+        return { success: true, database: dbCsv, keuangan: kasCsv };
       } catch (error) {
         console.error('Error:', error);
         showToast('Error', error.message);
@@ -355,42 +367,30 @@
     }
 
     // PARSE CSV DATA
-    function parseCSV(csv) {
+    function parseDatabaseCSV(csv) {
       const lines = csv.split('\n').filter(line => line.trim());
+      const data = [];
 
-      // Deteksi struktur sheet
-      // Sheet Database: No, Usia, Status, Status, JK, Ket
-      // Sheet Keuangan: Kas, Kredit, Debit, Saldo, Color
-
-      let databaseStart = -1;
-      let keuanganStart = -1;
-      let databaseData = [];
-      let keuanganData = [];
-
+      // Cari header
+      let headerRow = -1;
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].toLowerCase().trim();
-
-        // Deteksi header Database
+        const line = lines[i].toLowerCase();
         if (line.includes('no') && line.includes('usia') && line.includes('jk')) {
-          databaseStart = i;
-        }
-        // Deteksi header Keuangan
-        else if (line.includes('kas') && line.includes('kredit') && line.includes('debit')) {
-          keuanganStart = i;
+          headerRow = i;
+          break;
         }
       }
 
-      // Parse Database data
-      if (databaseStart >= 0) {
-        for (let i = databaseStart + 1; i < lines.length; i++) {
-          if (keuanganStart > 0 && i >= keuanganStart) break;
+      // Parse data
+      if (headerRow >= 0) {
+        for (let i = headerRow + 1; i < lines.length; i++) {
           const cols = parseCSVLine(lines[i]);
-          if (cols.length >= 5) {
-            databaseData.push({
+          if (cols.length >= 5 && cols[0] && cols[0].trim()) {
+            data.push({
               no: cols[0]?.trim(),
-              usia: parseInt(cols[1]) || 0,
-              status1: cols[2]?.trim() || '',
-              status2: cols[3]?.trim() || '',
+              nama: cols[1]?.trim() || '',
+              usia: parseInt(cols[2]) || 0,
+              status1: cols[3]?.trim() || '',
               jk: cols[4]?.trim().toLowerCase() || '',
               ket: cols[5]?.trim() || ''
             });
@@ -398,12 +398,30 @@
         }
       }
 
-      // Parse Keuangan data
-      if (keuanganStart >= 0) {
-        for (let i = keuanganStart + 1; i < lines.length; i++) {
+      console.log('Parsed Database:', data.length, 'records');
+      return data;
+    }
+
+    function parseKeuanganCSV(csv) {
+      const lines = csv.split('\n').filter(line => line.trim());
+      const data = [];
+
+      // Cari header
+      let headerRow = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        if (line.includes('kas') || line.includes('kredit') || line.includes('debit')) {
+          headerRow = i;
+          break;
+        }
+      }
+
+      // Parse data
+      if (headerRow >= 0) {
+        for (let i = headerRow + 1; i < lines.length; i++) {
           const cols = parseCSVLine(lines[i]);
-          if (cols.length >= 4) {
-            keuanganData.push({
+          if (cols.length >= 3 && (cols[0]?.trim() || cols[1]?.trim())) {
+            data.push({
               kas: cols[0]?.trim() || '',
               kredit: parseNumber(cols[1]),
               debit: parseNumber(cols[2]),
@@ -414,10 +432,8 @@
         }
       }
 
-      console.log('Database:', databaseData.length, 'records');
-      console.log('Keuangan:', keuanganData.length, 'records');
-
-      return { database: databaseData, keuangan: keuanganData };
+      console.log('Parsed Keuangan:', data.length, 'records');
+      return data;
     }
 
     function parseCSVLine(line) {
@@ -448,13 +464,15 @@
     }
 
     // UPDATE DASHBOARD WITH REAL DATA
-    function updateDashboardWithRealData(parsedData) {
-      const { database, keuangan } = parsedData;
-
+    function updateDashboardWithRealData(database, keuangan) {
       // ===== DEMOGRAFI =====
       const total = database.length;
-      const pria = database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk').length;
-      const wanita = database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan').length;
+      const pria = database.filter(d =>
+        d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk'
+      ).length;
+      const wanita = database.filter(d =>
+        d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan'
+      ).length;
 
       // Hitung distribusi usia
       const ageGroups = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
@@ -470,7 +488,7 @@
       // Hitung status pernikahan
       const statusMap = {};
       database.forEach(d => {
-        const status = d.status1 || d.status2 || '';
+        const status = d.status1 || '';
         if (status) {
           statusMap[status] = (statusMap[status] || 0) + 1;
         }
@@ -576,11 +594,11 @@
       if (CONFIG.USE_GOOGLE_SHEETS) {
         const result = await fetchFromGoogleSheets();
         if (result.success) {
-          const parsed = parseCSV(result.data);
-          updateDashboardWithRealData(parsed);
-          document.getElementById('data-mode').textContent = 'Google Sheets';
-          document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          const database = parseDatabaseCSV(result.database);
+          const keuangan = parseKeuanganCSV(result.keuangan);
+          updateDashboardWithRealData(database, keuangan);
           document.getElementById('data-mode').textContent = 'Live Data';
+          document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
         }
       }
 
@@ -791,8 +809,9 @@
         try {
           const result = await fetchFromGoogleSheets();
           if (result.success) {
-            const parsed = parseCSV(result.data);
-            updateDashboardWithRealData(parsed);
+            const database = parseDatabaseCSV(result.database);
+            const keuangan = parseKeuanganCSV(result.keuangan);
+            updateDashboardWithRealData(database, keuangan);
             document.getElementById('data-mode').textContent = 'Live Data';
             document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
           }
