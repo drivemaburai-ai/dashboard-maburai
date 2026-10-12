@@ -338,7 +338,7 @@
       renderCharts();
     }
 
-    // DATA FETCHING
+    // DATA FETCHING FROM GOOGLE SHEETS
     async function fetchFromGoogleSheets() {
       try {
         const url = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
@@ -354,6 +354,220 @@
       }
     }
 
+    // PARSE CSV DATA
+    function parseCSV(csv) {
+      const lines = csv.split('\n').filter(line => line.trim());
+
+      // Deteksi struktur sheet
+      // Sheet Database: No, Usia, Status, Status, JK, Ket
+      // Sheet Keuangan: Kas, Kredit, Debit, Saldo, Color
+
+      let databaseStart = -1;
+      let keuanganStart = -1;
+      let databaseData = [];
+      let keuanganData = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase().trim();
+
+        // Deteksi header Database
+        if (line.includes('no') && line.includes('usia') && line.includes('jk')) {
+          databaseStart = i;
+        }
+        // Deteksi header Keuangan
+        else if (line.includes('kas') && line.includes('kredit') && line.includes('debit')) {
+          keuanganStart = i;
+        }
+      }
+
+      // Parse Database data
+      if (databaseStart >= 0) {
+        for (let i = databaseStart + 1; i < lines.length; i++) {
+          if (keuanganStart > 0 && i >= keuanganStart) break;
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length >= 5) {
+            databaseData.push({
+              no: cols[0]?.trim(),
+              usia: parseInt(cols[1]) || 0,
+              status1: cols[2]?.trim() || '',
+              status2: cols[3]?.trim() || '',
+              jk: cols[4]?.trim().toLowerCase() || '',
+              ket: cols[5]?.trim() || ''
+            });
+          }
+        }
+      }
+
+      // Parse Keuangan data
+      if (keuanganStart >= 0) {
+        for (let i = keuanganStart + 1; i < lines.length; i++) {
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length >= 4) {
+            keuanganData.push({
+              kas: cols[0]?.trim() || '',
+              kredit: parseNumber(cols[1]),
+              debit: parseNumber(cols[2]),
+              saldo: parseNumber(cols[3]),
+              color: cols[4]?.trim() || ''
+            });
+          }
+        }
+      }
+
+      console.log('Database:', databaseData.length, 'records');
+      console.log('Keuangan:', keuanganData.length, 'records');
+
+      return { database: databaseData, keuangan: keuanganData };
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function parseNumber(str) {
+      if (!str) return 0;
+      // Hapus format Indonesia: 1.000.000 atau 1,000,000
+      const cleaned = str.replace(/[.\s]/g, '').replace(',', '.');
+      return parseFloat(cleaned) || 0;
+    }
+
+    // UPDATE DASHBOARD WITH REAL DATA
+    function updateDashboardWithRealData(parsedData) {
+      const { database, keuangan } = parsedData;
+
+      // ===== DEMOGRAFI =====
+      const total = database.length;
+      const pria = database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk').length;
+      const wanita = database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan').length;
+
+      // Hitung distribusi usia
+      const ageGroups = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
+      database.forEach(d => {
+        const usia = d.usia;
+        if (usia < 20) ageGroups['< 20']++;
+        else if (usia <= 30) ageGroups['20-30']++;
+        else if (usia <= 40) ageGroups['31-40']++;
+        else if (usia <= 50) ageGroups['41-50']++;
+        else ageGroups['> 50']++;
+      });
+
+      // Hitung status pernikahan
+      const statusMap = {};
+      database.forEach(d => {
+        const status = d.status1 || d.status2 || '';
+        if (status) {
+          statusMap[status] = (statusMap[status] || 0) + 1;
+        }
+      });
+
+      // Update dbData global
+      dbData.total = total;
+      dbData.pria = pria;
+      dbData.wanita = wanita;
+      dbData.ageGroups = {
+        labels: Object.keys(ageGroups),
+        values: Object.values(ageGroups)
+      };
+      dbData.marital = {
+        labels: Object.keys(statusMap),
+        values: Object.values(statusMap)
+      };
+      dbData.gender = {
+        labels: ['Pria', 'Wanita'],
+        values: [pria, wanita]
+      };
+
+      // ===== KEUANGAN =====
+      let totalKredit = 0;
+      let totalDebit = 0;
+      let saldoAkhir = 0;
+
+      keuangan.forEach(k => {
+        totalKredit += k.kredit;
+        totalDebit += k.debit;
+        if (k.saldo > 0) saldoAkhir = k.saldo;
+      });
+
+      // Update financeData global
+      financeData.kas = {
+        total: saldoAkhir,
+        pemasukan: totalKredit,
+        pengeluaran: totalDebit
+      };
+
+      financeData.items = keuangan.map((k, i) => ({
+        id: i + 1,
+        tanggal: k.kas,
+        keterangan: k.kas,
+        type: k.kredit > 0 ? 'masuk' : 'keluar',
+        jumlah: k.kredit > 0 ? k.kredit : k.debit,
+        category: 'transaksi'
+      }));
+
+      // Update KPI cards
+      updateKPICards();
+
+      // Re-render charts and list
+      renderCharts();
+      renderKasList();
+    }
+
+    function updateKPICards() {
+      // Update Total Anggota
+      const totalEl = document.querySelector('.glass-card:nth-child(1) .text-2xl');
+      if (totalEl) totalEl.textContent = dbData.total;
+
+      // Update Pria
+      const priaEl = document.querySelector('.glass-card:nth-child(2) .text-2xl');
+      if (priaEl) {
+        priaEl.textContent = dbData.pria;
+        const priaPct = dbData.total > 0 ? ((dbData.pria / dbData.total) * 100).toFixed(1) : 0;
+        priaEl.nextElementSibling.textContent = 'Pria (' + priaPct + '%)';
+      }
+
+      // Update Wanita
+      const wanitaEl = document.querySelector('.glass-card:nth-child(3) .text-2xl');
+      if (wanitaEl) {
+        wanitaEl.textContent = dbData.wanita;
+        const wanitaPct = dbData.total > 0 ? ((dbData.wanita / dbData.total) * 100).toFixed(1) : 0;
+        wanitaEl.nextElementSibling.textContent = 'Wanita (' + wanitaPct + '%)';
+      }
+
+      // Update Kas
+      const kasEl = document.querySelector('.glass-card:nth-child(4) .text-xl');
+      if (kasEl) kasEl.textContent = formatCurrency(financeData.kas.total);
+
+      // Update Pemasukan
+      const masukEl = document.querySelector('.glass-card:nth-child(5) .text-xl');
+      if (masukEl) masukEl.textContent = formatCurrency(financeData.kas.pemasukan);
+
+      // Update Pengeluaran
+      const keluarEl = document.querySelector('.glass-card:nth-child(6) .text-xl');
+      if (keluarEl) keluarEl.textContent = formatCurrency(financeData.kas.pengeluaran);
+
+      // Update Keuangan summary cards
+      const summaryCards = document.querySelectorAll('#keuangan .glass-card');
+      if (summaryCards[0]) summaryCards[0].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.total);
+      if (summaryCards[1]) summaryCards[1].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
+      if (summaryCards[2]) summaryCards[2].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
+    }
+
     async function refreshData() {
       const btn = document.querySelector('button[onclick="refreshData()"]');
       btn.style.transform = 'rotate(360deg)';
@@ -362,8 +576,11 @@
       if (CONFIG.USE_GOOGLE_SHEETS) {
         const result = await fetchFromGoogleSheets();
         if (result.success) {
+          const parsed = parseCSV(result.data);
+          updateDashboardWithRealData(parsed);
           document.getElementById('data-mode').textContent = 'Google Sheets';
           document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          document.getElementById('data-mode').textContent = 'Live Data';
         }
       }
 
@@ -551,7 +768,7 @@
     }
 
     // INITIALIZATION
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       AOS.init({ duration: 600, once: true });
 
       const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -559,6 +776,7 @@
       Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
+      // Render dengan data demo dulu
       renderCharts();
       renderKasList();
 
@@ -567,6 +785,21 @@
       document.getElementById('modal').addEventListener('click', (e) => {
         if (e.target.id === 'modal') closeModal();
       });
+
+      // Auto-load dari Google Sheets jika enabled
+      if (CONFIG.USE_GOOGLE_SHEETS) {
+        try {
+          const result = await fetchFromGoogleSheets();
+          if (result.success) {
+            const parsed = parseCSV(result.data);
+            updateDashboardWithRealData(parsed);
+            document.getElementById('data-mode').textContent = 'Live Data';
+            document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          }
+        } catch (error) {
+          console.log('Gagal load dari Google Sheets, menggunakan data demo');
+        }
+      }
 
       setTimeout(() => {
         document.getElementById('loading-screen').style.opacity = '0';
