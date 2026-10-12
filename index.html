@@ -356,18 +356,24 @@
       total: 138,
       pria: 72,
       wanita: 66,
+      kk: 31,
+      database: [],
       ageGroups: {
         labels: ['< 20', '20-30', '31-40', '41-50', '> 50'],
         values: [12, 45, 38, 28, 15]
       },
+      priaByAge: { '< 20': 6, '20-30': 22, '31-40': 20, '41-50': 14, '> 50': 10 },
+      wanitaByAge: { '< 20': 6, '20-30': 23, '31-40': 18, '41-50': 14, '> 50': 5 },
       gender: {
-        labels: ['Pria', 'Wanita'],
+        labels: ['Laki-laki', 'Perempuan'],
         values: [72, 66]
       },
       marital: {
-        labels: ['Menikah', 'Belum Menikah', 'Cerai'],
+        labels: ['Kawin', 'Belum Kawin', 'Janda'],
         values: [62, 68, 8]
-      }
+      },
+      ketCounts: { 'Dewasa': 80, 'Pra Remaja': 20, 'Remaja': 15, 'Cabe Rawit': 15, 'PAUD': 8 },
+      generus: { paud: 8, caberawit: 15, praremaja: 20, remaja: 15, pranikah: 80 }
     };
 
     const financeData = {
