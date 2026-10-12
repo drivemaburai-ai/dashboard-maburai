@@ -114,29 +114,31 @@
 
     <!-- KPI Cards -->
     <section class="mb-8">
-      <!-- Row 1: Total Jamaah -->
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-        <div class="glass-card p-4" data-aos="fade-up">
-          <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <!-- Total Jamaah Card (Clickable) -->
+      <div class="grid grid-cols-1 lg:grid-cols-1 gap-4 mb-4">
+        <div class="glass-card p-6 cursor-pointer hover:scale-[1.02] transition-all" data-aos="fade-up" onclick="showGenderDetail('all')">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="kpi-icon" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div>
+                <p class="text-4xl font-bold" id="kpi-total">138</p>
+                <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-6">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-blue-400" id="kpi-pria">0</p>
+                <p class="text-xs" style="color: var(--text-secondary);">Laki-laki</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-pink-400" id="kpi-wanita">0</p>
+                <p class="text-xs" style="color: var(--text-secondary);">Perempuan</p>
+              </div>
+            </div>
           </div>
-          <p class="text-3xl font-bold" id="kpi-total">138</p>
-          <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
-        </div>
-        <!-- Cards for Gender will be added dynamically -->
-        <div class="glass-card p-4" data-aos="fade-up" onclick="showGenderChart('Ikhwan')">
-          <div class="kpi-icon mb-3 bg-blue-500/20">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path><path d="M8 4h8"></path><path d="M9 4v2"></path><path d="M15 4v2"></path></svg>
-          </div>
-          <p class="text-3xl font-bold text-blue-400" id="kpi-pria">72</p>
-          <p class="text-sm" style="color: var(--text-secondary);">Ikhwan</p>
-        </div>
-        <div class="glass-card p-4" data-aos="fade-up" onclick="showGenderChart('Akhwat')">
-          <div class="kpi-icon mb-3 bg-pink-500/20">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path><path d="M8 4c0-1 1-2 4-2s4 1 4 2"></path><path d="M7 4v2"></path><path d="M17 4v2"></path><path d="M12 4v3"></path><path d="M8 4c0 1 1 2 4 2s4-1 4-2"></path></svg>
-          </div>
-          <p class="text-3xl font-bold text-pink-400" id="kpi-wanita">66</p>
-          <p class="text-sm" style="color: var(--text-secondary);">Akhwat</p>
+          <p class="text-xs mt-3 text-center cursor-pointer" style="color: var(--accent-cyan);">Klik untuk lihat detail</p>
         </div>
       </div>
 
@@ -636,62 +638,64 @@
       }).join('');
     }
 
-    // Show gender chart when clicking Ikhwan/Akhwat
-    function showGenderChart(type) {
-      openModal('Detail Jamaah',
-        '<div class="chart-container" style="height: 250px;"><canvas id="genderPopupChart"></canvas></div>' +
-        '<div class="mt-4 text-center">' +
-          '<p class="text-2xl font-bold text-blue-400 cursor-pointer hover:underline" onclick="showGenderDetail(\'pria\')">' + dbData.pria + ' Laki-laki</p>' +
-          '<p class="text-2xl font-bold text-pink-400 cursor-pointer hover:underline" onclick="showGenderDetail(\'wanita\')">' + dbData.wanita + ' Perempuan</p>' +
-        '</div>'
-      );
-
-      setTimeout(() => {
-        const ctx = document.getElementById('genderPopupChart');
-        if (ctx) {
-          new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: ['Laki-laki', 'Perempuan'],
-              datasets: [{
-                data: [dbData.pria, dbData.wanita],
-                backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
-                borderWidth: 0
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              cutout: '60%',
-              plugins: {
-                legend: { position: 'bottom' }
-              }
-            }
-          });
-        }
-      }, 100);
-    }
-
     function showGenderDetail(type) {
       let title = '';
-      let data = [];
+      let content = '';
 
-      if (type === 'pria') {
-        title = 'Daftar Ikhwan (Laki-laki)';
-        data = dbData.database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk');
+      if (type === 'all') {
+        title = 'Detail Jamaah';
+        const priaList = dbData.database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk');
+        const wanitaList = dbData.database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan');
+
+        const priaHtml = priaList.map(d =>
+          '<div class="p-2 rounded mb-1" style="background: var(--bg-primary); border-left: 3px solid #3b82f6;">' +
+            '<p class="font-medium text-sm">' + (d.nama || d.no) + '</p>' +
+            '<p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p>' +
+          '</div>'
+        ).join('');
+
+        const wanitaHtml = wanitaList.map(d =>
+          '<div class="p-2 rounded mb-1" style="background: var(--bg-primary); border-left: 3px solid #ec4899;">' +
+            '<p class="font-medium text-sm">' + (d.nama || d.no) + '</p>' +
+            '<p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p>' +
+          '</div>'
+        ).join('');
+
+        content = '<div class="text-center mb-4">' +
+          '<span class="inline-block px-4 py-2 rounded-full bg-blue-500/20 text-blue-400 mr-2">' +
+            '<span class="text-2xl font-bold">' + dbData.pria + '</span> Laki-laki' +
+          '</span>' +
+          '<span class="inline-block px-4 py-2 rounded-full bg-pink-500/20 text-pink-400">' +
+            '<span class="text-2xl font-bold">' + dbData.wanita + '</span> Perempuan' +
+          '</span>' +
+        '</div>' +
+        '<div class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">' +
+          '<div>' +
+            '<h4 class="font-semibold text-blue-400 mb-2">Laki-laki (' + dbData.pria + ')</h4>' +
+            priaHtml +
+          '</div>' +
+          '<div>' +
+            '<h4 class="font-semibold text-pink-400 mb-2">Perempuan (' + dbData.wanita + ')</h4>' +
+            wanitaHtml +
+          '</div>' +
+        '</div>';
+      } else if (type === 'pria') {
+        title = 'Daftar Laki-laki';
+        const data = dbData.database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk');
+        content = '<div class="text-center mb-3"><span class="px-4 py-2 rounded-full bg-blue-500/20 text-blue-400"><span class="text-xl font-bold">' + dbData.pria + '</span> Laki-laki</span></div>' +
+          '<div class="max-h-96 overflow-y-auto">' +
+            data.map(d => '<div class="p-2 rounded mb-1" style="background: var(--bg-primary);"><p class="font-medium text-sm">' + (d.nama || d.no) + '</p><p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p></div>').join('') +
+          '</div>';
       } else {
-        title = 'Daftar Akhwat (Perempuan)';
-        data = dbData.database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan');
+        title = 'Daftar Perempuan';
+        const data = dbData.database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan');
+        content = '<div class="text-center mb-3"><span class="px-4 py-2 rounded-full bg-pink-500/20 text-pink-400"><span class="text-xl font-bold">' + dbData.wanita + '</span> Perempuan</span></div>' +
+          '<div class="max-h-96 overflow-y-auto">' +
+            data.map(d => '<div class="p-2 rounded mb-1" style="background: var(--bg-primary);"><p class="font-medium text-sm">' + (d.nama || d.no) + '</p><p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p></div>').join('') +
+          '</div>';
       }
 
-      const listHtml = data.map(d =>
-        '<div class="p-2 rounded mb-2" style="background: var(--bg-primary);">' +
-          '<p class="font-medium">' + (d.nama || d.no) + '</p>' +
-          '<p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + ' | Status: ' + (d.status1 || '-') + '</p>' +
-        '</div>'
-      ).join('');
-
-      openModal(title, '<div class="max-h-96 overflow-y-auto">' + listHtml + '</div>');
+      openModal(title, content);
     }
 
     async function refreshData() {
