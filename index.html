@@ -86,9 +86,6 @@
         <button onclick="window.print()" class="btn-glass text-sm p-2" title="Cetak" style="color: white;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
         </button>
-        <button id="theme-toggle" class="btn-glass text-lg p-2" title="Ganti Tema" style="color: white;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        </button>
         <button onclick="refreshData()" class="btn-glass text-lg p-2" title="Refresh" style="color: white;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         </button>
@@ -116,34 +113,39 @@
     </div>
 
     <!-- KPI Cards -->
-    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="0">
+    <section class="grid grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+      <div class="glass-card p-4 cursor-pointer" data-aos="fade-up" onclick="showGenderChart()">
         <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </div>
-        <p class="text-2xl font-bold" id="kpi-total">138</p>
+        <p class="text-3xl font-bold" id="kpi-total">138</p>
         <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
+        <p class="text-xs mt-1" style="color: var(--accent-cyan);">Klik untuk lihat detail</p>
       </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="50">
-        <div class="kpi-icon mb-3 bg-blue-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+      <div class="glass-card p-4" data-aos="fade-up">
+        <h3 class="font-semibold mb-3">Database Generus Kelompok</h3>
+        <div class="space-y-2 text-sm" id="generus-list">
+          <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-primary);">
+            <span>PAUD (5-6 tahun)</span>
+            <span class="font-bold text-cyan-400" id="gen-paud">0</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-primary);">
+            <span>Cabe Rawit (Kelas 1-6 SD)</span>
+            <span class="font-bold text-purple-400" id="gen-caberawit">0</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-primary);">
+            <span>Pra Remaja (SMP)</span>
+            <span class="font-bold text-pink-400" id="gen-praremaja">0</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-primary);">
+            <span>Remaja (SMA)</span>
+            <span class="font-bold text-orange-400" id="gen-remaja">0</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded" style="background: var(--bg-primary);">
+            <span>Pra Nikah (19+ tahun)</span>
+            <span class="font-bold text-emerald-400" id="gen-pranikah">0</span>
+          </div>
         </div>
-        <p class="text-2xl font-bold text-blue-400" id="kpi-pria">72</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Ikhwan</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="kpi-icon mb-3 bg-pink-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path><path d="M16 11l2 2 4-4"></path></svg>
-        </div>
-        <p class="text-2xl font-bold text-pink-400" id="kpi-wanita">66</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Akhwat</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="150">
-        <div class="kpi-icon mb-3 bg-emerald-500/20">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </div>
-        <p class="text-xl font-bold text-emerald-400" id="kpi-kas">Rp 16.6Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Total Kas</p>
       </div>
     </section>
 
@@ -315,26 +317,10 @@
       document.getElementById('modal').classList.remove('show');
     }
 
-    // THEME TOGGLE
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateChartsTheme();
-    });
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    }
-
+    // Chart defaults (Dark mode only)
     function updateChartsTheme() {
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      Chart.defaults.color = isDark ? '#94a3b8' : '#475569';
-      Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+      Chart.defaults.color = '#94a3b8';
+      Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
       renderCharts();
     }
 
@@ -487,6 +473,24 @@
         else ageGroups['> 50']++;
       });
 
+      // Hitung generus berdasarkan field "ket"
+      const generus = {
+        paud: 0,
+        caberawit: 0,
+        praremaja: 0,
+        remaja: 0,
+        pranikah: 0
+      };
+
+      database.forEach(d => {
+        const ket = (d.ket || '').toLowerCase();
+        if (ket.includes('paud')) generus.paud++;
+        else if (ket.includes('cabe') || ket.includes('cabai')) generus.caberawit++;
+        else if (ket.includes('pra remaja') || ket.includes('praremaja')) generus.praremaja++;
+        else if (ket.includes('remaja') && !ket.includes('pra')) generus.remaja++;
+        else if (ket.includes('pra nikah') || ket.includes('pranikah') || ket.includes('dewasa')) generus.pranikah++;
+      });
+
       // Hitung status pernikahan
       const statusMap = {};
       database.forEach(d => {
@@ -509,9 +513,10 @@
         values: Object.values(statusMap)
       };
       dbData.gender = {
-        labels: ['Pria', 'Wanita'],
+        labels: ['Ikhwan', 'Akhwat'],
         values: [pria, wanita]
       };
+      dbData.generus = generus;
 
       // ===== KEUANGAN =====
       let totalKredit = 0;
@@ -553,23 +558,66 @@
       const totalEl = document.getElementById('kpi-total');
       if (totalEl) totalEl.textContent = dbData.total;
 
-      // Update Ikhwan
-      const priaEl = document.getElementById('kpi-pria');
-      if (priaEl) priaEl.textContent = dbData.pria;
+      // Update Generus counts
+      if (dbData.generus) {
+        const paudEl = document.getElementById('gen-paud');
+        if (paudEl) paudEl.textContent = dbData.generus.paud;
 
-      // Update Akhwat
-      const wanitaEl = document.getElementById('kpi-wanita');
-      if (wanitaEl) wanitaEl.textContent = dbData.wanita;
+        const caberawitEl = document.getElementById('gen-caberawit');
+        if (caberawitEl) caberawitEl.textContent = dbData.generus.caberawit;
 
-      // Update Kas
-      const kasEl = document.getElementById('kpi-kas');
-      if (kasEl) kasEl.textContent = formatCurrency(financeData.kas.total);
+        const praremajaEl = document.getElementById('gen-praremaja');
+        if (praremajaEl) praremajaEl.textContent = dbData.generus.praremaja;
+
+        const remajaEl = document.getElementById('gen-remaja');
+        if (remajaEl) remajaEl.textContent = dbData.generus.remaja;
+
+        const pranikahEl = document.getElementById('gen-pranikah');
+        if (pranikahEl) pranikahEl.textContent = dbData.generus.pranikah;
+      }
 
       // Update Keuangan summary cards
       const summaryCards = document.querySelectorAll('#keuangan .glass-card');
       if (summaryCards[0]) summaryCards[0].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.total);
       if (summaryCards[1]) summaryCards[1].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
       if (summaryCards[2]) summaryCards[2].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
+    }
+
+    // Show gender chart when clicking Total Jamaah
+    function showGenderChart() {
+      openModal('Detail Jamaah',
+        '<div class="chart-container" style="height: 250px;"><canvas id="genderPopupChart"></canvas></div>' +
+        '<div class="mt-4 text-center">' +
+          '<p class="text-2xl font-bold text-blue-400">' + dbData.pria + ' Ikhwan</p>' +
+          '<p class="text-2xl font-bold text-pink-400">' + dbData.wanita + ' Akhwat</p>' +
+        '</div>'
+      );
+
+      // Render the chart after modal opens
+      setTimeout(() => {
+        const ctx = document.getElementById('genderPopupChart');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: dbData.gender.labels,
+              datasets: [{
+                data: dbData.gender.values,
+                backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '60%',
+              plugins: {
+                legend: { position: 'bottom' }
+              }
+            }
+          });
+        }
+      }, 100);
     }
 
     async function refreshData() {
@@ -815,10 +863,6 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
-      if (e.ctrlKey && e.key === 'd') {
-        e.preventDefault();
-        themeToggle.click();
-      }
     });
   </script>
 </body>
