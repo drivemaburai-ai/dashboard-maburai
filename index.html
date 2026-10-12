@@ -83,13 +83,13 @@
         <h1 class="text-xl font-bold gradient-text">Maburai 2026</h1>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <button onclick="window.print()" class="btn-glass text-sm p-2" title="Cetak">
+        <button onclick="window.print()" class="btn-glass text-sm p-2" title="Cetak" style="color: white;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
         </button>
-        <button id="theme-toggle" class="btn-glass text-lg p-2" title="Ganti Tema">
+        <button id="theme-toggle" class="btn-glass text-lg p-2" title="Ganti Tema" style="color: white;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
-        <button onclick="refreshData()" class="btn-glass text-lg p-2" title="Refresh">
+        <button onclick="refreshData()" class="btn-glass text-lg p-2" title="Refresh" style="color: white;">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         </button>
       </div>
@@ -102,7 +102,7 @@
     <div class="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/10 blur-2xl float-blur"></div>
     <div class="absolute bottom-10 right-10 w-40 h-40 rounded-full bg-white/10 blur-3xl float-blur" style="animation-delay: -4s;"></div>
     <div class="max-w-7xl mx-auto relative text-center">
-      <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Maburai 2026</h2>
+      <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Kelompok Maburai 2026</h2>
       <p class="text-white/80 text-lg max-w-2xl mx-auto">Dashboard monitoring data jamaah dan keuangan kelompok</p>
     </div>
   </section>
@@ -116,36 +116,34 @@
     </div>
 
     <!-- KPI Cards -->
-    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
       <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="0">
-        <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">A</div>
-        <p class="text-2xl font-bold">138</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Total Anggota</p>
+        <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <p class="text-2xl font-bold" id="kpi-total">138</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
       </div>
       <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="50">
-        <div class="kpi-icon mb-3 bg-blue-500/20">L</div>
-        <p class="text-2xl font-bold text-blue-400">72</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pria (52.2%)</p>
+        <div class="kpi-icon mb-3 bg-blue-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+        </div>
+        <p class="text-2xl font-bold text-blue-400" id="kpi-pria">72</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Ikhwan</p>
       </div>
       <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="kpi-icon mb-3 bg-pink-500/20">P</div>
-        <p class="text-2xl font-bold text-pink-400">66</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Wanita (47.8%)</p>
+        <div class="kpi-icon mb-3 bg-pink-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path><path d="M16 11l2 2 4-4"></path></svg>
+        </div>
+        <p class="text-2xl font-bold text-pink-400" id="kpi-wanita">66</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Akhwat</p>
       </div>
       <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="150">
-        <div class="kpi-icon mb-3 bg-emerald-500/20">$</div>
-        <p class="text-xl font-bold text-emerald-400">Rp 16.6Jt</p>
+        <div class="kpi-icon mb-3 bg-emerald-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+        <p class="text-xl font-bold text-emerald-400" id="kpi-kas">Rp 16.6Jt</p>
         <p class="text-sm" style="color: var(--text-secondary);">Total Kas</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="kpi-icon mb-3 bg-cyan-500/20">+</div>
-        <p class="text-xl font-bold text-cyan-400">Rp 527Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pemasukan</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="250">
-        <div class="kpi-icon mb-3 bg-rose-500/20">-</div>
-        <p class="text-xl font-bold text-rose-400">Rp 511Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pengeluaran</p>
       </div>
     </section>
 
@@ -551,37 +549,21 @@
     }
 
     function updateKPICards() {
-      // Update Total Anggota
-      const totalEl = document.querySelector('.glass-card:nth-child(1) .text-2xl');
+      // Update Total Jamaah
+      const totalEl = document.getElementById('kpi-total');
       if (totalEl) totalEl.textContent = dbData.total;
 
-      // Update Pria
-      const priaEl = document.querySelector('.glass-card:nth-child(2) .text-2xl');
-      if (priaEl) {
-        priaEl.textContent = dbData.pria;
-        const priaPct = dbData.total > 0 ? ((dbData.pria / dbData.total) * 100).toFixed(1) : 0;
-        priaEl.nextElementSibling.textContent = 'Pria (' + priaPct + '%)';
-      }
+      // Update Ikhwan
+      const priaEl = document.getElementById('kpi-pria');
+      if (priaEl) priaEl.textContent = dbData.pria;
 
-      // Update Wanita
-      const wanitaEl = document.querySelector('.glass-card:nth-child(3) .text-2xl');
-      if (wanitaEl) {
-        wanitaEl.textContent = dbData.wanita;
-        const wanitaPct = dbData.total > 0 ? ((dbData.wanita / dbData.total) * 100).toFixed(1) : 0;
-        wanitaEl.nextElementSibling.textContent = 'Wanita (' + wanitaPct + '%)';
-      }
+      // Update Akhwat
+      const wanitaEl = document.getElementById('kpi-wanita');
+      if (wanitaEl) wanitaEl.textContent = dbData.wanita;
 
       // Update Kas
-      const kasEl = document.querySelector('.glass-card:nth-child(4) .text-xl');
+      const kasEl = document.getElementById('kpi-kas');
       if (kasEl) kasEl.textContent = formatCurrency(financeData.kas.total);
-
-      // Update Pemasukan
-      const masukEl = document.querySelector('.glass-card:nth-child(5) .text-xl');
-      if (masukEl) masukEl.textContent = formatCurrency(financeData.kas.pemasukan);
-
-      // Update Pengeluaran
-      const keluarEl = document.querySelector('.glass-card:nth-child(6) .text-xl');
-      if (keluarEl) keluarEl.textContent = formatCurrency(financeData.kas.pengeluaran);
 
       // Update Keuangan summary cards
       const summaryCards = document.querySelectorAll('#keuangan .glass-card');
