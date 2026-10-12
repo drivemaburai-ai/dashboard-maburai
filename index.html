@@ -187,18 +187,68 @@
 
     <!-- Jamaah Charts Section -->
     <section id="demografi" class="mb-12 scroll-mt-24">
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="glass-card p-6" data-aos="fade-right">
-          <h3 class="font-semibold mb-4">Distribusi Usia</h3>
-          <div class="chart-container"><canvas id="ageChart"></canvas></div>
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span>G</span> Grafik Demografi Jamaah
+      </h2>
+
+      <!-- Population Pyramid Chart -->
+      <div class="glass-card p-6 mb-6" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Piramida Jamaah (Distribusi Usia & Jenis Kelamin)</h3>
+        <div class="chart-container" style="height: 400px;"><canvas id="pyramidChart"></canvas></div>
+        <div class="flex justify-center gap-6 mt-4">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded bg-blue-500"></div>
+            <span class="text-sm" style="color: var(--text-secondary);">Laki-laki</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded bg-pink-500"></div>
+            <span class="text-sm" style="color: var(--text-secondary);">Perempuan</span>
+          </div>
         </div>
-        <div class="glass-card p-6" data-aos="fade-up">
-          <h3 class="font-semibold mb-4">Jenis Kelamin</h3>
-          <div class="chart-container"><canvas id="genderChart"></canvas></div>
+      </div>
+
+      <!-- Marital Status Visualization -->
+      <div class="glass-card p-6 mb-6" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Distribusi Status Pernikahan</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="chart-container" style="height: 300px;"><canvas id="maritalChart"></canvas></div>
+          <div id="marital-list" class="space-y-3">
+            <!-- Marital status list will be generated -->
+          </div>
         </div>
-        <div class="glass-card p-6" data-aos="fade-left">
-          <h3 class="font-semibold mb-4">Status Pernikahan</h3>
-          <div class="chart-container"><canvas id="maritalChart"></canvas></div>
+      </div>
+
+      <!-- Age & Gender Summary Cards -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-4 text-center" data-aos="fade-up">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+          </div>
+          <p class="text-3xl font-bold" id="summary-total">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
+        </div>
+        <div class="glass-card p-4 text-center" data-aos="fade-up" data-aos-delay="50">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-blue-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+          </div>
+          <p class="text-3xl font-bold text-blue-400" id="summary-pria">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Laki-laki</p>
+          <p class="text-xs mt-1" id="summary-pria-pct" style="color: var(--text-secondary);">0%</p>
+        </div>
+        <div class="glass-card p-4 text-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-pink-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+          </div>
+          <p class="text-3xl font-bold text-pink-400" id="summary-wanita">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Perempuan</p>
+          <p class="text-xs mt-1" id="summary-wanita-pct" style="color: var(--text-secondary);">0%</p>
+        </div>
+        <div class="glass-card p-4 text-center" data-aos="fade-up" data-aos-delay="150">
+          <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </div>
+          <p class="text-3xl font-bold" id="summary-kk">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Jumlah KK</p>
         </div>
       </div>
     </section>
@@ -515,13 +565,18 @@
 
       // Hitung distribusi usia
       const ageGroups = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
+      const priaByAge = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
+      const wanitaByAge = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
       database.forEach(d => {
         const usia = d.usia;
-        if (usia < 20) ageGroups['< 20']++;
-        else if (usia <= 30) ageGroups['20-30']++;
-        else if (usia <= 40) ageGroups['31-40']++;
-        else if (usia <= 50) ageGroups['41-50']++;
-        else ageGroups['> 50']++;
+        const jk = (d.jk || '').toLowerCase();
+        const isPria = ['l', 'pria', 'laki', 'lk'].includes(jk);
+        const isWanita = ['p', 'wanita', 'perempuan'].includes(jk);
+        if (usia < 20) { ageGroups['< 20']++; if (isPria) priaByAge['< 20']++; else if (isWanita) wanitaByAge['< 20']++; }
+        else if (usia <= 30) { ageGroups['20-30']++; if (isPria) priaByAge['20-30']++; else if (isWanita) wanitaByAge['20-30']++; }
+        else if (usia <= 40) { ageGroups['31-40']++; if (isPria) priaByAge['31-40']++; else if (isWanita) wanitaByAge['31-40']++; }
+        else if (usia <= 50) { ageGroups['41-50']++; if (isPria) priaByAge['41-50']++; else if (isWanita) wanitaByAge['41-50']++; }
+        else { ageGroups['> 50']++; if (isPria) priaByAge['> 50']++; else if (isWanita) wanitaByAge['> 50']++; }
       });
 
       // Hitung generus berdasarkan field "ket"
@@ -577,6 +632,8 @@
         labels: ['Laki-laki', 'Perempuan'],
         values: [pria, wanita]
       };
+      dbData.priaByAge = priaByAge;
+      dbData.wanitaByAge = wanitaByAge;
       dbData.ketCounts = ketMap;
       dbData.generus = generus;
 
@@ -912,6 +969,124 @@
           }
         }
       });
+
+      // Render Pyramid Chart
+      renderPyramidChart();
+
+      // Render Marital List
+      renderMaritalList();
+
+      // Update Summary Cards
+      updateDemographicSummary();
+    }
+
+    function renderPyramidChart() {
+      const ctx = document.getElementById('pyramidChart');
+      if (!ctx) return;
+
+      const labels = ['< 20', '20-30', '31-40', '41-50', '> 50'];
+      const priaData = labels.map(l => dbData.priaByAge ? -dbData.priaByAge[l] : 0);
+      const wanitaData = labels.map(l => dbData.wanitaByAge ? dbData.wanitaByAge[l] : 0);
+
+      if (chartInstances.pyramid) chartInstances.pyramid.destroy();
+
+      chartInstances.pyramid = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Laki-laki',
+              data: priaData,
+              backgroundColor: 'rgba(59, 130, 246, 0.8)',
+              borderRadius: 4
+            },
+            {
+              label: 'Perempuan',
+              data: wanitaData,
+              backgroundColor: 'rgba(236, 72, 153, 0.8)',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return Math.abs(context.raw) + ' orang';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.1)' },
+              ticks: {
+                color: '#94a3b8',
+                callback: function(value) {
+                  return Math.abs(value);
+                }
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderMaritalList() {
+      const container = document.getElementById('marital-list');
+      if (!container || !dbData.marital) return;
+
+      const total = dbData.total || 1;
+      const colors = ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+      container.innerHTML = dbData.marital.labels.map((status, i) => {
+        const count = dbData.marital.values[i] || 0;
+        const pct = Math.round((count / total) * 100);
+        const color = colors[i % colors.length];
+        return `
+          <div class="p-3 rounded-lg" style="background: var(--bg-primary); border-left: 4px solid ${color};">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-medium">${status}</span>
+              <span class="font-bold" style="color: ${color};">${count}</span>
+            </div>
+            <div class="w-full h-2 rounded-full" style="background: rgba(148, 163, 184, 0.2);">
+              <div class="h-full rounded-full" style="width: ${pct}%; background: ${color};"></div>
+            </div>
+            <p class="text-xs mt-1" style="color: var(--text-secondary);">${pct}% dari total</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateDemographicSummary() {
+      const summaryTotal = document.getElementById('summary-total');
+      const summaryPria = document.getElementById('summary-pria');
+      const summaryWanita = document.getElementById('summary-wanita');
+      const summaryKK = document.getElementById('summary-kk');
+      const summaryPriaPct = document.getElementById('summary-pria-pct');
+      const summaryWanitaPct = document.getElementById('summary-wanita-pct');
+
+      if (summaryTotal) summaryTotal.textContent = dbData.total || 0;
+      if (summaryPria) summaryPria.textContent = dbData.pria || 0;
+      if (summaryWanita) summaryWanita.textContent = dbData.wanita || 0;
+      if (summaryKK) summaryKK.textContent = dbData.kk || 0;
+
+      const total = dbData.total || 1;
+      const priaPct = Math.round((dbData.pria / total) * 100);
+      const wanitaPct = 100 - priaPct;
+
+      if (summaryPriaPct) summaryPriaPct.textContent = priaPct + '%';
+      if (summaryWanitaPct) summaryWanitaPct.textContent = wanitaPct + '%';
     }
 
     function renderKasList() {
