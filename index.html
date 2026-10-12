@@ -458,9 +458,13 @@
 
     function parseNumber(str) {
       if (!str) return 0;
-      // Hapus format Indonesia: 1.000.000 atau 1,000,000
-      const cleaned = str.replace(/[.\s]/g, '').replace(',', '.');
-      return parseFloat(cleaned) || 0;
+      // Handle string dengan format: "  381,505,199 " atau "381.505.199"
+      // Hapus spasi
+      let cleaned = str.toString().trim();
+      // Hapus semua karakter non-angka
+      cleaned = cleaned.replace(/[^\d]/g, '');
+      // Parse sebagai integer
+      return parseInt(cleaned) || 0;
     }
 
     // UPDATE DASHBOARD WITH REAL DATA
