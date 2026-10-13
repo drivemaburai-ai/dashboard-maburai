@@ -341,8 +341,8 @@
     }
 
     function updateChartsTheme() {
-      // Simply reinitialize charts with new theme colors
-      initCharts();
+      // Don't reinitialize on theme change - charts will use new defaults
+      // The theme change will be picked up on next chart creation
     }
 
     // DATA FETCHING
@@ -469,8 +469,11 @@
         summaryCards[2].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
       }
 
-      // Re-render charts (initCharts handles cleanup internally)
-      initCharts();
+      // Re-create charts with new data
+      destroyAllCharts().then(() => {
+        chartInitialized = false;
+        initCharts();
+      });
       renderKasList();
     }
 
@@ -497,42 +500,61 @@
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
     }
 
-    // CHART RENDERING - ROBUST VERSION
+    // CHART RENDERING - ULTRA ROBUST VERSION
+    let chartInitialized = false;
+
     function safeDestroyChart(id) {
       try {
-        const existingChart = Chart.getChart(id);
-        if (existingChart) {
-          existingChart.destroy();
-        }
-        // Also clear the canvas context
-        const canvas = document.getElementById(id);
-        if (canvas) {
-          const ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Method 1: Chart.getChart (v3+)
+        const chart1 = Chart.getChart(id);
+        if (chart1) {
+          chart1.destroy();
+          console.log('Destroyed chart via Chart.getChart:', id);
         }
       } catch (e) {
-        console.warn('Chart cleanup warning:', e);
+        console.warn('Method 1 failed:', e);
+      }
+      try {
+        // Method 2: Find by canvas ID
+        const canvas = document.getElementById(id);
+        if (canvas && canvas._chartjs) {
+          canvas._chartjs.running = false;
+          canvas._chartjs.initial = [];
+        }
+      } catch (e) {
+        console.warn('Method 2 failed:', e);
       }
     }
 
-    function initCharts() {
+    function destroyAllCharts() {
+      ['ageChart', 'genderChart', 'maritalChart', 'kasChart'].forEach(id => {
+        safeDestroyChart(id);
+      });
+      // Small delay to ensure cleanup
+      return new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    async function initCharts() {
+      // Only initialize once on page load
+      if (chartInitialized) {
+        console.log('Charts already initialized, skipping');
+        return;
+      }
+
+      await destroyAllCharts();
+
       const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
       const textColor = isDark ? '#94a3b8' : '#475569';
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
 
-      // Destroy ALL existing charts safely
-      safeDestroyChart('ageChart');
-      safeDestroyChart('genderChart');
-      safeDestroyChart('maritalChart');
-      safeDestroyChart('kasChart');
+      // Create all charts
+      createAgeChart(textColor, gridColor);
+      createGenderChart(textColor);
+      createMaritalChart(textColor);
+      createKasChart(textColor, gridColor);
 
-      // Small delay to ensure cleanup is complete
-      setTimeout(() => {
-        createAgeChart(textColor, gridColor);
-        createGenderChart(textColor);
-        createMaritalChart(textColor);
-        createKasChart(textColor, gridColor);
-      }, 50);
+      chartInitialized = true;
+      console.log('All charts initialized successfully');
     }
 
     function createAgeChart(textColor, gridColor) {
