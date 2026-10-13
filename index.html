@@ -172,16 +172,16 @@
         </div>
       </div>
 
-      <!-- Row 3: Status Cards -->
-      <h3 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Status Pernikahan</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6" id="status-cards">
-        <!-- Status cards will be added dynamically -->
+	      <!-- Status Pernikahan Chart -->
+      <div class="glass-card p-6 mb-4" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Status Pernikahan</h3>
+        <div style="height: 250px;"><canvas id="maritalChart"></canvas></div>
       </div>
 
-      <!-- Row 4: Ket Cards (Generus) -->
-      <h3 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Kategori Jamaah</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3" id="ket-cards">
-        <!-- Ket cards will be added dynamically -->
+      <!-- Kategori Jamaah Chart -->
+      <div class="glass-card p-6 mb-4" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Kategori Jamaah</h3>
+        <div style="height: 250px;"><canvas id="ketChart"></canvas></div>
       </div>
     </section>
 
@@ -795,7 +795,7 @@
       const textColor = isDark ? '#94a3b8' : '#475569';
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
 
-      Object.values(chartInstances).forEach(chart => chart.destroy());
+      Object.values(chartInstances).forEach(chart => chart.destroy()); renderMaritalChart(); renderKetChart(); renderGenerusChart();
 
       const ageCtx = document.getElementById('ageChart').getContext('2d');
       chartInstances.age = new Chart(ageCtx, {
@@ -912,6 +912,66 @@
           }
         }
       });
+
+    function renderMaritalChart() {
+      const ctx = document.getElementById("maritalChart");
+      if (!ctx) return;
+      if (chartInstances.marital) chartInstances.marital.destroy();
+      chartInstances.marital = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: dbData.marital.labels,
+          datasets: [{
+            data: dbData.marital.values,
+            backgroundColor: ["#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "60%",
+          animation: { animateScale: true, animateRotate: true },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#94a3b8", padding: 20 }
+            }
+          }
+        }
+      });
+    }
+
+    function renderKetChart() {
+      const ctx = document.getElementById("ketChart");
+      if (!ctx) return;
+      if (chartInstances.ket) chartInstances.ket.destroy();
+      const labels = Object.keys(dbData.ketCounts || {});
+      const data = Object.values(dbData.ketCounts || {});
+      chartInstances.ket = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: ["#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981"],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "60%",
+          animation: { animateScale: true, animateRotate: true },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#94a3b8", padding: 20 }
+            }
+          }
+        }
+      });
+    }
     }
 
     function renderKasList() {
