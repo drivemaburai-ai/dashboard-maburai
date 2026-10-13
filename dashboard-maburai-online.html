@@ -241,12 +241,11 @@
   </div>
 
   <script>
-    // CONFIGURATION
+    // CONFIGURATION - GANTI DENGAN SPREADSHEET ID ANDA
     const CONFIG = {
-      USE_GOOGLE_SHEETS: false,
-      SPREADSHEET_ID: '1q-InIbqV1y4YaCabqxDEjjA_aU9hPoHyb2foKTnzvBM'
-',
-      DEMO_MODE: true
+      USE_GOOGLE_SHEETS: true,  // Set TRUE untuk koneksi Google Sheets
+      SPREADSHEET_ID: '1q-InIbqV1y4YaCabqxDEjjA_aU9hPoHyb2foKTnzvBM',
+      DEMO_MODE: false
     };
 
     // SAMPLE DATA - DEMO MODE
@@ -333,10 +332,29 @@
     }
 
     function updateChartsTheme() {
+      if (!chartsInitialized) return; // Don't update if charts not yet rendered
       const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
       Chart.defaults.color = isDark ? '#94a3b8' : '#475569';
       Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-      renderCharts();
+      // Update existing charts' colors
+      Object.values(chartInstances).forEach(chart => {
+        if (chart && chart.options && chart.options.scales) {
+          const textColor = isDark ? '#94a3b8' : '#475569';
+          const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+          if (chart.options.scales.x) {
+            chart.options.scales.x.ticks.color = textColor;
+            if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = gridColor;
+          }
+          if (chart.options.scales.y) {
+            chart.options.scales.y.ticks.color = textColor;
+            if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
+          }
+          if (chart.options.plugins && chart.options.plugins.legend) {
+            chart.options.plugins.legend.labels.color = textColor;
+          }
+          chart.update();
+        }
+      });
     }
 
     // DATA FETCHING
@@ -344,15 +362,129 @@
       try {
         const url = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets');
+        if (!response.ok) throw new Error('Spreadsheet tidak ditemukan atau belum di-publish');
         const csv = await response.text();
         console.log('CSV Data:', csv);
         return { success: true, data: csv };
       } catch (error) {
         console.error('Error:', error);
-        showToast('Error', error.message);
+        showToast('Error', 'Gagal mengambil data: ' + error.message);
         return { success: false, error: error.message };
       }
+    }
+
+    // PARSE CSV DATA
+    function parseSheetsData(csv) {
+      const lines = csv.trim().split('\n');
+      if (lines.length < 2) return null;
+
+      const firstLine = lines[0].toLowerCase();
+
+      // Deteksi format
+      if (firstLine.includes('tanggal') || firstLine.includes('keterangan')) {
+        return parseKeuangan(lines);
+      } else if (firstLine.includes('nama') || firstLine.includes('jk')) {
+        return parseJamaah(lines);
+      }
+
+      // Default: asumsi format keuangan sederhana
+      return parseKeuangan(lines);
+    }
+
+    function parseKeuangan(lines) {
+      let items = [];
+      let totalMasuk = 0;
+      let totalKeluar = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length < 4) continue;
+
+        const tanggal = cols[0]?.trim() || '';
+        const keterangan = cols[1]?.trim() || '';
+        const tipe = cols[2]?.toLowerCase().trim() || '';
+        const jumlah = parseInt((cols[3] || '0').replace(/[^0-9]/g, '')) || 0;
+
+        if (tipe.includes('masuk')) {
+          totalMasuk += jumlah;
+        } else if (tipe.includes('keluar')) {
+          totalKeluar += jumlah;
+        }
+
+        items.push({
+          id: i,
+          tanggal: tanggal,
+          keterangan: keterangan,
+          type: tipe.includes('masuk') ? 'masuk' : 'keluar',
+          jumlah: jumlah,
+          category: cols[4]?.trim() || 'lain'
+        });
+      }
+
+      financeData = {
+        kas: { total: totalMasuk - totalKeluar, pemasukan: totalMasuk, pengeluaran: totalKeluar },
+        items: items
+      };
+    }
+
+    function parseJamaah(lines) {
+      let pria = 0, wanita = 0;
+      let ageGroup = { '<20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '>50': 0 };
+      let menikah = 0, belum = 0, cerai = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length < 3) continue;
+
+        const jk = (cols[1] || '').toUpperCase().trim();
+        const usia = parseInt(cols[2]) || 0;
+        const status = (cols[3] || '').toLowerCase().trim();
+
+        if (jk === 'L' || jk === 'PRIA' || jk === 'LAKI') pria++;
+        else if (jk === 'P' || jk === 'WANITA' || jk === 'PEREMPUAN') wanita++;
+
+        if (usia < 20) ageGroup['<20']++;
+        else if (usia <= 30) ageGroup['20-30']++;
+        else if (usia <= 40) ageGroup['31-40']++;
+        else if (usia <= 50) ageGroup['41-50']++;
+        else ageGroup['>50']++;
+
+        if (status.includes('nikah')) menikah++;
+        else if (status.includes('cerai')) cerai++;
+        else belum++;
+      }
+
+      dbData = {
+        total: pria + wanita,
+        pria: pria,
+        wanita: wanita,
+        ageGroups: { labels: ['< 20', '20-30', '31-40', '41-50', '> 50'], values: [ageGroup['<20'], ageGroup['20-30'], ageGroup['31-40'], ageGroup['41-50'], ageGroup['>50']] },
+        gender: { labels: ['Pria', 'Wanita'], values: [pria, wanita] },
+        marital: { labels: ['Menikah', 'Belum Menikah', 'Cerai'], values: [menikah, belum, cerai] }
+      };
+    }
+
+    function updateAllUI() {
+      // Update KPI cards
+      const kpiCards = document.querySelectorAll('section.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-6.gap-4.mb-8 .glass-card');
+      if (kpiCards.length >= 6) {
+        kpiCards[0].querySelector('p.text-2xl').textContent = dbData.total;
+        kpiCards[1].querySelector('p.text-2xl').textContent = dbData.pria;
+        kpiCards[2].querySelector('p.text-2xl').textContent = dbData.wanita;
+      }
+
+      // Update finance summary
+      const summaryCards = document.querySelectorAll('#keuangan .grid.md\\:grid-cols-3.gap-4.mb-6 .glass-card');
+      if (summaryCards.length >= 3) {
+        summaryCards[0].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.total);
+        summaryCards[1].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
+        summaryCards[2].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
+      }
+
+      // Re-render charts
+      chartsInitialized = false;
+      renderCharts();
+      renderKasList();
     }
 
     async function refreshData() {
@@ -361,26 +493,34 @@
       setTimeout(() => btn.style.transform = '', 1000);
 
       if (CONFIG.USE_GOOGLE_SHEETS) {
+        document.getElementById('data-mode').textContent = 'Memuat...';
         const result = await fetchFromGoogleSheets();
+
         if (result.success) {
+          parseSheetsData(result.data);
           document.getElementById('data-mode').textContent = 'Google Sheets';
           document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          updateAllUI();
+          showToast('Berhasil', 'Data berhasil diperbarui dari Google Sheets');
+        } else {
+          document.getElementById('data-mode').textContent = 'Demo';
         }
       }
 
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
-      showToast('Berhasil', 'Data berhasil diperbarui');
     }
 
     // CHART RENDERING
     const chartInstances = {};
+    let chartsInitialized = false;
 
     function renderCharts() {
+      // Prevent double initialization
+      if (chartsInitialized) return;
+
       const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
       const textColor = isDark ? '#94a3b8' : '#475569';
       const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-
-      Object.values(chartInstances).forEach(chart => chart.destroy());
 
       const ageCtx = document.getElementById('ageChart').getContext('2d');
       chartInstances.age = new Chart(ageCtx, {
@@ -494,6 +634,9 @@
           }
         }
       });
+
+      // Mark charts as initialized
+      chartsInitialized = true;
     }
 
     function renderKasList() {
