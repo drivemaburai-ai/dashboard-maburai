@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Dashboard Maburai 2026</title>
+  <script>
+    // Force reload if cached version detected
+    if (performance.navigation.type === 2) {
+      location.reload(true);
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/chart.js@3.9.1/dist/chart.umd.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --border-color: rgba(148, 163, 184, 0.1);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #e2e8f0;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --border-color: rgba(71, 85, 105, 0.1);
+    }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #e2e8f0;
+        --bg-card: rgba(255, 255, 255, 0.8);
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --border-color: rgba(71, 85, 105, 0.1);
+      }
+    }
+    * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+    body { margin: 0; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; padding-top: 80px; }
+    .gradient-text { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .glass-card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; transition: all 0.3s ease; }
+    .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .hero-gradient { background: linear-gradient(135deg, #0891b2 0%, #7c3aed 50%, #db2777 100%); }
+    .btn-glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 16px; color: white; cursor: pointer; transition: all 0.2s; }
+    .btn-glass:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
+    .nav-blur { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); }
+    [data-theme="light"] .nav-blur { background: rgba(255, 255, 255, 0.9); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+    .float-blur { animation: float 8s ease-in-out infinite; }
+    .chart-container { position: relative; height: 280px; width: 100%; }
+    .toast { transform: translateX(120%); transition: transform 0.3s ease; }
+    .toast.show { transform: translateX(0); }
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .kpi-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    @media (max-width: 768px) { .chart-container { height: 220px; } }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center" style="background: var(--bg-primary);">
+    <div class="spinner mb-4"></div>
+    <p class="text-lg font-medium" style="color: var(--text-secondary);">Memuat Dashboard...</p>
+    <p class="text-sm mt-2" style="color: var(--text-secondary);">Kelompok Maburai 2026</p>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-40 nav-blur border-b" style="border-color: var(--border-color);">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">M</div>
+        <h1 class="text-xl font-bold gradient-text">Dashboard Maburai 2026</h1>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <a href="#demografi" class="btn-glass text-sm">Demografi</a>
+        <a href="#keuangan" class="btn-glass text-sm">Keuangan</a>
+        <button onclick="window.print()" class="btn-glass text-sm">Cetak</button>
+        <button id="theme-toggle" class="btn-glass text-lg" title="Ganti Tema">T</button>
+        <button onclick="refreshData()" class="btn-glass text-lg" title="Refresh">R</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <section class="relative overflow-hidden py-16 px-4 hero-gradient">
+    <div class="absolute inset-0 backdrop-blur-sm opacity-30"></div>
+    <div class="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/10 blur-2xl float-blur"></div>
+    <div class="absolute bottom-10 right-10 w-40 h-40 rounded-full bg-white/10 blur-3xl float-blur" style="animation-delay: -4s;"></div>
+    <div class="max-w-7xl mx-auto relative text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-4">
+        <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+        <span class="text-sm font-medium text-white">Data Real-time dari Google Sheets</span>
+      </div>
+      <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Kelompok Maburai 2026</h2>
+      <p class="text-white/80 text-lg max-w-2xl mx-auto">Dashboard monitoring data anggota dan keuangan kelompok</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Last Update -->
+    <div class="text-center mb-6">
+      <p class="text-sm" style="color: var(--text-secondary);">Terakhir diperbarui: <span id="last-update" class="font-medium">-</span></p>
+      <p class="text-xs mt-1" style="color: var(--text-secondary);">Mode: <span id="data-mode" class="px-2 py-0.5 rounded bg-green-500/20 text-green-400">Demo</span></p>
+    </div>
+
+    <!-- KPI Cards -->
+    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">A</div>
+        <p class="text-2xl font-bold">138</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Total Anggota</p>
+      </div>
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="kpi-icon mb-3 bg-blue-500/20">L</div>
+        <p class="text-2xl font-bold text-blue-400">72</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Pria (52.2%)</p>
+      </div>
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="kpi-icon mb-3 bg-pink-500/20">P</div>
+        <p class="text-2xl font-bold text-pink-400">66</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Wanita (47.8%)</p>
+      </div>
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="kpi-icon mb-3 bg-emerald-500/20">$</div>
+        <p class="text-xl font-bold text-emerald-400">Rp 16.6Jt</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Total Kas</p>
+      </div>
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="kpi-icon mb-3 bg-cyan-500/20">+</div>
+        <p class="text-xl font-bold text-cyan-400">Rp 527Jt</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Pemasukan</p>
+      </div>
+      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="250">
+        <div class="kpi-icon mb-3 bg-rose-500/20">-</div>
+        <p class="text-xl font-bold text-rose-400">Rp 511Jt</p>
+        <p class="text-sm" style="color: var(--text-secondary);">Pengeluaran</p>
+      </div>
+    </section>
+
+    <!-- Demografi Section -->
+    <section id="demografi" class="mb-12 scroll-mt-24">
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span>D</span> Demografi Anggota
+      </h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-6" data-aos="fade-right">
+          <h3 class="font-semibold mb-4">Distribusi Usia</h3>
+          <div class="chart-container"><canvas id="ageChart"></canvas></div>
+        </div>
+        <div class="glass-card p-6" data-aos="fade-up">
+          <h3 class="font-semibold mb-4">Jenis Kelamin</h3>
+          <div class="chart-container"><canvas id="genderChart"></canvas></div>
+        </div>
+        <div class="glass-card p-6" data-aos="fade-left">
+          <h3 class="font-semibold mb-4">Status Pernikahan</h3>
+          <div class="chart-container"><canvas id="maritalChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Keuangan Section -->
+    <section id="keuangan" class="mb-12 scroll-mt-24">
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span>K</span> Keuangan Kelompok
+      </h2>
+
+      <!-- Summary Cards -->
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="glass-card p-6" style="background: linear-gradient(135deg, #0891b2, #06b6d4);" data-aos="fade-up">
+          <p class="text-white/80 text-sm mb-1">Kas Tersedia</p>
+          <p class="text-2xl font-bold text-white">Rp 16.600.000</p>
+          <p class="text-white/60 text-xs mt-2">Saldo saat ini</p>
+        </div>
+        <div class="glass-card p-6" style="background: linear-gradient(135deg, #059669, #10b981);" data-aos="fade-up" data-aos-delay="100">
+          <p class="text-white/80 text-sm mb-1">Total Pemasukan</p>
+          <p class="text-2xl font-bold text-white">Rp 527.000.000</p>
+          <p class="text-white/60 text-xs mt-2">Sepanjang periode</p>
+        </div>
+        <div class="glass-card p-6" style="background: linear-gradient(135deg, #dc2626, #ef4444);" data-aos="fade-up" data-aos-delay="200">
+          <p class="text-white/80 text-sm mb-1">Total Pengeluaran</p>
+          <p class="text-2xl font-bold text-white">Rp 511.000.000</p>
+          <p class="text-white/60 text-xs mt-2">Sepanjang periode</p>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Kas Chart -->
+        <div class="glass-card p-6" data-aos="fade-right">
+          <h3 class="font-semibold mb-4">Ringkasan Kas</h3>
+          <div class="chart-container"><canvas id="kasChart"></canvas></div>
+        </div>
+
+        <!-- Kas List -->
+        <div class="glass-card p-6" data-aos="fade-left">
+          <h3 class="font-semibold mb-4">Detail Kas</h3>
+          <div class="space-y-3 max-h-80 overflow-y-auto" id="kas-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t py-6 px-4 text-center" style="border-color: var(--border-color);">
+    <p class="text-sm" style="color: var(--text-secondary);">
+      2026 Kelompok Maburai. Hak Cipta Dilindungi.
+    </p>
+  </footer>
+
+  <!-- Modal -->
+  <div id="modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7);">
+    <div class="glass-card max-w-lg w-full max-h-[80vh] overflow-auto" style="background: var(--bg-secondary);">
+      <div class="p-6 border-b flex items-center justify-between" style="border-color: var(--border-color);">
+        <h3 id="modal-title" class="font-bold text-lg">Detail Kas</h3>
+        <button onclick="closeModal()" class="text-2xl hover:opacity-70">x</button>
+      </div>
+      <div id="modal-content" class="p-6"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast fixed bottom-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg" style="background: var(--bg-secondary); border: 1px solid var(--danger);">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">!</span>
+      <div>
+        <p id="toast-title" class="font-semibold">Error</p>
+        <p id="toast-message" class="text-sm" style="color: var(--text-secondary);"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CONFIGURATION - GANTI DENGAN SPREADSHEET ID ANDA
+    const CONFIG = {
+      USE_GOOGLE_SHEETS: true,  // Set TRUE untuk koneksi Google Sheets
+      SPREADSHEET_ID: '1q-InIbqV1y4YaCabqxDEjjA_aU9hPoHyb2foKTnzvBM',
+      DEMO_MODE: false
+    };
+
+    // SAMPLE DATA - DEMO MODE
+    const dbData = {
+      total: 138,
+      pria: 72,
+      wanita: 66,
+      ageGroups: {
+        labels: ['< 20', '20-30', '31-40', '41-50', '> 50'],
+        values: [12, 45, 38, 28, 15]
+      },
+      gender: {
+        labels: ['Pria', 'Wanita'],
+        values: [72, 66]
+      },
+      marital: {
+        labels: ['Menikah', 'Belum Menikah', 'Cerai'],
+        values: [62, 68, 8]
+      }
+    };
+
+    const financeData = {
+      kas: {
+        total: 16600000,
+        pemasukan: 527000000,
+        pengeluaran: 511000000
+      },
+      items: [
+        { id: 1, tanggal: '2026-01-15', keterangan: 'Iuran Bulanan Januari', type: 'masuk', jumlah: 13800000, category: 'iuran' },
+        { id: 2, tanggal: '2026-01-20', keterangan: 'Kegiatan Halal Bihalal', type: 'keluar', jumlah: 8500000, category: 'kegiatan' },
+        { id: 3, tanggal: '2026-02-10', keterangan: 'Iuran Bulanan Februari', type: 'masuk', jumlah: 13800000, category: 'iuran' },
+        { id: 4, tanggal: '2026-02-15', keterangan: 'Konsumsi Rapat Bulanan', type: 'keluar', jumlah: 2500000, category: 'operasional' },
+        { id: 5, tanggal: '2026-03-01', keterangan: 'Iuran Bulanan Maret', type: 'masuk', jumlah: 13800000, category: 'iuran' },
+        { id: 6, tanggal: '2026-03-10', keterangan: 'Pengajian Rutin', type: 'keluar', jumlah: 5000000, category: 'kegiatan' },
+        { id: 7, tanggal: '2026-03-20', keterangan: 'Bantuan Sosial', type: 'keluar', jumlah: 15000000, category: 'sosial' },
+        { id: 8, tanggal: '2026-04-05', keterangan: 'Iuran Bulanan April', type: 'masuk', jumlah: 13800000, category: 'iuran' },
+        { id: 9, tanggal: '2026-04-12', keterangan: 'Sewa Tempat', type: 'keluar', jumlah: 12000000, category: 'operasional' },
+        { id: 10, tanggal: '2026-05-01', keterangan: 'Iuran Bulanan Mei', type: 'masuk', jumlah: 13800000, category: 'iuran' }
+      ]
+    };
+
+    // UTILITY FUNCTIONS
+    function formatCurrency(num) {
+      return 'Rp ' + num.toLocaleString('id-ID');
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function showToast(title, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-message').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 5000);
+    }
+
+    function openModal(title, content) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-content').innerHTML = content;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+    }
+
+    // THEME TOGGLE
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateChartsTheme();
+    });
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    function updateChartsTheme() {
+      // Simply reinitialize charts with new theme colors
+      initCharts();
+    }
+
+    // DATA FETCHING
+    async function fetchFromGoogleSheets() {
+      try {
+        const url = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Spreadsheet tidak ditemukan atau belum di-publish');
+        const csv = await response.text();
+        console.log('CSV Data:', csv);
+        return { success: true, data: csv };
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error', 'Gagal mengambil data: ' + error.message);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // PARSE CSV DATA
+    function parseSheetsData(csv) {
+      const lines = csv.trim().split('\n');
+      if (lines.length < 2) return null;
+
+      const firstLine = lines[0].toLowerCase();
+
+      // Deteksi format
+      if (firstLine.includes('tanggal') || firstLine.includes('keterangan')) {
+        return parseKeuangan(lines);
+      } else if (firstLine.includes('nama') || firstLine.includes('jk')) {
+        return parseJamaah(lines);
+      }
+
+      // Default: asumsi format keuangan sederhana
+      return parseKeuangan(lines);
+    }
+
+    function parseKeuangan(lines) {
+      let items = [];
+      let totalMasuk = 0;
+      let totalKeluar = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length < 4) continue;
+
+        const tanggal = cols[0]?.trim() || '';
+        const keterangan = cols[1]?.trim() || '';
+        const tipe = cols[2]?.toLowerCase().trim() || '';
+        const jumlah = parseInt((cols[3] || '0').replace(/[^0-9]/g, '')) || 0;
+
+        if (tipe.includes('masuk')) {
+          totalMasuk += jumlah;
+        } else if (tipe.includes('keluar')) {
+          totalKeluar += jumlah;
+        }
+
+        items.push({
+          id: i,
+          tanggal: tanggal,
+          keterangan: keterangan,
+          type: tipe.includes('masuk') ? 'masuk' : 'keluar',
+          jumlah: jumlah,
+          category: cols[4]?.trim() || 'lain'
+        });
+      }
+
+      financeData = {
+        kas: { total: totalMasuk - totalKeluar, pemasukan: totalMasuk, pengeluaran: totalKeluar },
+        items: items
+      };
+    }
+
+    function parseJamaah(lines) {
+      let pria = 0, wanita = 0;
+      let ageGroup = { '<20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '>50': 0 };
+      let menikah = 0, belum = 0, cerai = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length < 3) continue;
+
+        const jk = (cols[1] || '').toUpperCase().trim();
+        const usia = parseInt(cols[2]) || 0;
+        const status = (cols[3] || '').toLowerCase().trim();
+
+        if (jk === 'L' || jk === 'PRIA' || jk === 'LAKI') pria++;
+        else if (jk === 'P' || jk === 'WANITA' || jk === 'PEREMPUAN') wanita++;
+
+        if (usia < 20) ageGroup['<20']++;
+        else if (usia <= 30) ageGroup['20-30']++;
+        else if (usia <= 40) ageGroup['31-40']++;
+        else if (usia <= 50) ageGroup['41-50']++;
+        else ageGroup['>50']++;
+
+        if (status.includes('nikah')) menikah++;
+        else if (status.includes('cerai')) cerai++;
+        else belum++;
+      }
+
+      dbData = {
+        total: pria + wanita,
+        pria: pria,
+        wanita: wanita,
+        ageGroups: { labels: ['< 20', '20-30', '31-40', '41-50', '> 50'], values: [ageGroup['<20'], ageGroup['20-30'], ageGroup['31-40'], ageGroup['41-50'], ageGroup['>50']] },
+        gender: { labels: ['Pria', 'Wanita'], values: [pria, wanita] },
+        marital: { labels: ['Menikah', 'Belum Menikah', 'Cerai'], values: [menikah, belum, cerai] }
+      };
+    }
+
+    function updateAllUI() {
+      // Update KPI cards
+      const kpiCards = document.querySelectorAll('section.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-6.gap-4.mb-8 .glass-card');
+      if (kpiCards.length >= 6) {
+        kpiCards[0].querySelector('p.text-2xl').textContent = dbData.total;
+        kpiCards[1].querySelector('p.text-2xl').textContent = dbData.pria;
+        kpiCards[2].querySelector('p.text-2xl').textContent = dbData.wanita;
+      }
+
+      // Update finance summary
+      const summaryCards = document.querySelectorAll('#keuangan .grid.md\\:grid-cols-3.gap-4.mb-6 .glass-card');
+      if (summaryCards.length >= 3) {
+        summaryCards[0].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.total);
+        summaryCards[1].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
+        summaryCards[2].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
+      }
+
+      // Re-render charts (initCharts handles cleanup internally)
+      initCharts();
+      renderKasList();
+    }
+
+    async function refreshData() {
+      const btn = document.querySelector('button[onclick="refreshData()"]');
+      btn.style.transform = 'rotate(360deg)';
+      setTimeout(() => btn.style.transform = '', 1000);
+
+      if (CONFIG.USE_GOOGLE_SHEETS) {
+        document.getElementById('data-mode').textContent = 'Memuat...';
+        const result = await fetchFromGoogleSheets();
+
+        if (result.success) {
+          parseSheetsData(result.data);
+          document.getElementById('data-mode').textContent = 'Google Sheets';
+          document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          updateAllUI();
+          showToast('Berhasil', 'Data berhasil diperbarui dari Google Sheets');
+        } else {
+          document.getElementById('data-mode').textContent = 'Demo';
+        }
+      }
+
+      document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
+    }
+
+    // CHART RENDERING - ROBUST VERSION
+    function safeDestroyChart(id) {
+      try {
+        const existingChart = Chart.getChart(id);
+        if (existingChart) {
+          existingChart.destroy();
+        }
+        // Also clear the canvas context
+        const canvas = document.getElementById(id);
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      } catch (e) {
+        console.warn('Chart cleanup warning:', e);
+      }
+    }
+
+    function initCharts() {
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const textColor = isDark ? '#94a3b8' : '#475569';
+      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+
+      // Destroy ALL existing charts safely
+      safeDestroyChart('ageChart');
+      safeDestroyChart('genderChart');
+      safeDestroyChart('maritalChart');
+      safeDestroyChart('kasChart');
+
+      // Small delay to ensure cleanup is complete
+      setTimeout(() => {
+        createAgeChart(textColor, gridColor);
+        createGenderChart(textColor);
+        createMaritalChart(textColor);
+        createKasChart(textColor, gridColor);
+      }, 50);
+    }
+
+    function createAgeChart(textColor, gridColor) {
+      const ctx = document.getElementById('ageChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dbData.ageGroups.labels,
+          datasets: [{
+            label: 'Jumlah',
+            data: dbData.ageGroups.values,
+            backgroundColor: [
+              'rgba(6, 182, 212, 0.7)',
+              'rgba(139, 92, 246, 0.7)',
+              'rgba(236, 72, 153, 0.7)',
+              'rgba(245, 158, 11, 0.7)',
+              'rgba(16, 185, 129, 0.7)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+            x: { grid: { display: false }, ticks: { color: textColor } }
+          }
+        }
+      });
+    }
+
+    function createGenderChart(textColor) {
+      const ctx = document.getElementById('genderChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: dbData.gender.labels,
+          datasets: [{
+            data: dbData.gender.values,
+            backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+          }
+        }
+      });
+    }
+
+    function createMaritalChart(textColor) {
+      const ctx = document.getElementById('maritalChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: dbData.marital.labels,
+          datasets: [{
+            data: dbData.marital.values,
+            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+          }
+        }
+      });
+    }
+
+    function createKasChart(textColor, gridColor) {
+      const ctx = document.getElementById('kasChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
+          datasets: [{
+            label: 'Jumlah (Rp)',
+            data: [
+              financeData.kas.total,
+              financeData.kas.pemasukan,
+              financeData.kas.pengeluaran
+            ],
+            backgroundColor: [
+              'rgba(6, 182, 212, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: {
+                color: textColor,
+                callback: function(value) {
+                  if (value >= 1000000) return (value / 1000000).toFixed(0) + 'Jt';
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'Rb';
+                  return value;
+                }
+              }
+            },
+            y: { grid: { display: false }, ticks: { color: textColor } }
+          }
+        }
+      });
+    }
+
+    function renderKasList() {
+      const container = document.getElementById('kas-list');
+      container.innerHTML = financeData.items.map(item =>
+        '<div class="flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all hover:scale-[1.02]" ' +
+             'style="background: var(--bg-primary);" ' +
+             'onclick="showKasDetail(' + item.id + ')">' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="text-xl">' + (item.type === 'masuk' ? '>' : '<') + '</span>' +
+            '<div>' +
+              '<p class="font-medium text-sm">' + item.keterangan + '</p>' +
+              '<p class="text-xs" style="color: var(--text-secondary);">' + formatDate(item.tanggal) + '</p>' +
+            '</div>' +
+          '</div>' +
+          '<span class="font-semibold ' + (item.type === 'masuk' ? 'text-emerald-400' : 'text-rose-400') + '">' +
+            (item.type === 'masuk' ? '+' : '-') + formatCurrency(item.jumlah) +
+          '</span>' +
+        '</div>'
+      ).join('');
+    }
+
+    function showKasDetail(id) {
+      const item = financeData.items.find(i => i.id === id);
+      if (!item) return;
+
+      const categoryLabels = {
+        iuran: 'Iuran',
+        kegiatan: 'Kegiatan',
+        operasional: 'Operasional',
+        sosial: 'Sosial'
+      };
+
+      const content =
+        '<div class="space-y-4">' +
+          '<div class="p-4 rounded-lg" style="background: var(--bg-primary);">' +
+            '<p class="text-sm mb-1" style="color: var(--text-secondary);">Tanggal</p>' +
+            '<p class="font-medium">' + formatDate(item.tanggal) + '</p>' +
+          '</div>' +
+          '<div class="p-4 rounded-lg" style="background: var(--bg-primary);">' +
+            '<p class="text-sm mb-1" style="color: var(--text-secondary);">Keterangan</p>' +
+            '<p class="font-medium">' + item.keterangan + '</p>' +
+          '</div>' +
+          '<div class="p-4 rounded-lg" style="background: var(--bg-primary);">' +
+            '<p class="text-sm mb-1" style="color: var(--text-secondary);">Kategori</p>' +
+            '<p class="font-medium">' + (categoryLabels[item.category] || item.category) + '</p>' +
+          '</div>' +
+          '<div class="p-4 rounded-lg" style="background: var(--bg-primary);">' +
+            '<p class="text-sm mb-1" style="color: var(--text-secondary);">Jumlah</p>' +
+            '<p class="font-bold text-xl ' + (item.type === 'masuk' ? 'text-emerald-400' : 'text-rose-400') + '">' +
+              (item.type === 'masuk' ? '+' : '-') + formatCurrency(item.jumlah) +
+            '</p>' +
+          '</div>' +
+        '</div>';
+      openModal('Detail Transaksi', content);
+    }
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+      AOS.init({ duration: 600, once: true });
+
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      Chart.defaults.color = isDark ? '#94a3b8' : '#475569';
+      Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+      Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+      initCharts();
+      renderKasList();
+
+      document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
+
+      document.getElementById('modal').addEventListener('click', (e) => {
+        if (e.target.id === 'modal') closeModal();
+      });
+
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.opacity = '0';
+        document.getElementById('loading-screen').style.pointerEvents = 'none';
+        document.getElementById('loading-screen').style.transition = 'opacity 0.5s ease';
+      }, 1500);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        themeToggle.click();
+      }
+    });
+  </script>
+</body>
+</html>
