@@ -185,38 +185,21 @@
       </div>
     </section>
 
-    <!-- Piramida Jamaah Chart -->
-    <section class="mb-8">
-      <div class="glass-card p-6" data-aos="fade-up">
-        <h3 class="font-semibold mb-4 text-center">Piramida Jamaah (Distribusi Usia & Jenis Kelamin)</h3>
-        <div style="height: 350px;"><canvas id="pyramidChart"></canvas></div>
-        <div class="flex justify-center gap-6 mt-4">
-          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-blue-500"></div><span class="text-sm">Laki-laki</span></div>
-          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-pink-500"></div><span class="text-sm">Perempuan</span></div>
-        </div>
-      </div>
-    </section>
-
     <!-- Jamaah Charts Section -->
     <section id="demografi" class="mb-12 scroll-mt-24">
-      <div class="grid lg:grid-cols-2 gap-6">
+      <div class="grid md:grid-cols-3 gap-6">
         <div class="glass-card p-6" data-aos="fade-right">
-          <h3 class="font-semibold mb-4 text-center">Status Pernikahan</h3>
-          <div style="height: 280px;"><canvas id="maritalChart"></canvas></div>
+          <h3 class="font-semibold mb-4">Distribusi Usia</h3>
+          <div class="chart-container"><canvas id="ageChart"></canvas></div>
+        </div>
+        <div class="glass-card p-6" data-aos="fade-up">
+          <h3 class="font-semibold mb-4">Jenis Kelamin</h3>
+          <div class="chart-container"><canvas id="genderChart"></canvas></div>
         </div>
         <div class="glass-card p-6" data-aos="fade-left">
-          <h3 class="font-semibold mb-4 text-center">Kategori Jamaah</h3>
-          <div style="height: 280px;"><canvas id="ketChart"></canvas></div>
+          <h3 class="font-semibold mb-4">Status Pernikahan</h3>
+          <div class="chart-container"><canvas id="maritalChart"></canvas></div>
         </div>
-      </div>
-    </section>
-
-    <!-- Kategori Jamaah Section -->
-    <section class="mb-8">
-      <div class="glass-card p-6" data-aos="fade-up">
-        <h3 class="font-semibold mb-4 text-center">Detail Kategori Jamaah</h3>
-        <div style="height: 300px;"><canvas id="generusChart"></canvas></div>
-        <div class="flex justify-center gap-4 mt-4" id="generus-legend"></div>
       </div>
     </section>
 
@@ -323,16 +306,12 @@
       total: 138,
       pria: 72,
       wanita: 66,
-      kk: 31,
-      database: [],
       ageGroups: {
         labels: ['< 20', '20-30', '31-40', '41-50', '> 50'],
         values: [12, 45, 38, 28, 15]
       },
-      priaByAge: { '< 20': 6, '20-30': 22, '31-40': 20, '41-50': 14, '> 50': 10 },
-      wanitaByAge: { '< 20': 6, '20-30': 23, '31-40': 18, '41-50': 14, '> 50': 5 },
       gender: {
-        labels: ['Laki-laki', 'Perempuan'],
+        labels: ['Pria', 'Wanita'],
         values: [72, 66]
       },
       marital: {
@@ -818,14 +797,6 @@
 
       Object.values(chartInstances).forEach(chart => chart.destroy());
 
-      renderPyramidChart();
-
-
-
-      renderPyramidChart();
-
-
-
       const ageCtx = document.getElementById('ageChart').getContext('2d');
       chartInstances.age = new Chart(ageCtx, {
         type: 'bar',
@@ -940,113 +911,6 @@
             y: { grid: { display: false }, ticks: { color: textColor } }
           }
         }
-      });
-    }
-
-    function renderPyramidChart() {
-      const ctx = document.getElementById('pyramidChart');
-      if (!ctx) return;
-      if (chartInstances.pyramid) chartInstances.pyramid.destroy();
-
-      const labels = ['< 20', '20-30', '31-40', '41-50', '> 50'];
-      const priaData = labels.map(l => -(dbData.priaByAge[l] || 0));
-      const wanitaData = labels.map(l => dbData.wanitaByAge[l] || 0);
-
-      chartInstances.pyramid = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Laki-laki',
-              data: priaData,
-              backgroundColor: 'rgba(59, 130, 246, 0.7)',
-              borderColor: 'rgba(59, 130, 246, 1)',
-              borderWidth: 1,
-              borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 8, bottomRight: 8 },
-              barThickness: 35
-            },
-            {
-              label: 'Perempuan',
-              data: wanitaData,
-              backgroundColor: 'rgba(236, 72, 153, 0.7)',
-              borderColor: 'rgba(236, 72, 153, 1)',
-              borderWidth: 1,
-              borderRadius: { topLeft: 8, bottomLeft: 8, topRight: 0, bottomRight: 0 },
-              barThickness: 35
-            }
-          ]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const label = context.dataset.label;
-                  return label + ': ' + Math.abs(context.raw) + ' orang';
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: {
-                color: function(context) {
-                  if (context.tick.value === 0) {
-                    return 'rgba(255, 255, 255, 0.3)';
-                  }
-                  return 'rgba(148, 163, 184, 0.1)';
-                },
-                lineWidth: 2
-              },
-              ticks: {
-                color: '#94a3b8',
-                callback: function(value) {
-                  return Math.abs(value);
-                }
-              },
-              stacked: false
-            },
-            y: {
-              grid: { display: false },
-              ticks: { color: '#94a3b8', font: { size: 12, weight: '500' } },
-              barPercentage: 0.8
-            }
-          }
-        },
-        plugins: [{
-          id: 'centerLine',
-          afterDraw: function(chart) {
-            const ctx = chart.ctx;
-            const xAxis = chart.scales.x;
-            const yAxis = chart.scales.y;
-            const y0 = yAxis.getPixelForValue(0);
-            const xCenter = xAxis.getPixelForValue(0);
-
-            ctx.save();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.moveTo(xCenter, yAxis.top);
-            ctx.lineTo(xCenter, yAxis.bottom);
-            ctx.stroke();
-            ctx.restore();
-
-            // Draw center label
-            ctx.save();
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '10px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('Laki-laki', xAxis.getPixelForValue(-25), yAxis.top - 10);
-            ctx.fillText('Perempuan', xAxis.getPixelForValue(25), yAxis.top - 10);
-            ctx.restore();
-          }
-        }]
       });
     }
 
