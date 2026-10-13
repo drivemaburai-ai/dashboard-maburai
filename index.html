@@ -942,26 +942,106 @@
       const ctx = document.getElementById('pyramidChart');
       if (!ctx) return;
       if (chartInstances.pyramid) chartInstances.pyramid.destroy();
+
       const labels = ['< 20', '20-30', '31-40', '41-50', '> 50'];
       const priaData = labels.map(l => -(dbData.priaByAge[l] || 0));
       const wanitaData = labels.map(l => dbData.wanitaByAge[l] || 0);
+
       chartInstances.pyramid = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: labels,
           datasets: [
-            { label: 'Laki-laki', data: priaData, backgroundColor: 'rgba(59, 130, 246, 0.8)', borderRadius: 4 },
-            { label: 'Perempuan', data: wanitaData, backgroundColor: 'rgba(236, 72, 153, 0.8)', borderRadius: 4 }
+            {
+              label: 'Laki-laki',
+              data: priaData,
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1,
+              borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 8, bottomRight: 8 },
+              barThickness: 35
+            },
+            {
+              label: 'Perempuan',
+              data: wanitaData,
+              backgroundColor: 'rgba(236, 72, 153, 0.7)',
+              borderColor: 'rgba(236, 72, 153, 1)',
+              borderWidth: 1,
+              borderRadius: { topLeft: 8, bottomLeft: 8, topRight: 0, bottomRight: 0 },
+              barThickness: 35
+            }
           ]
         },
         options: {
-          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => Math.abs(ctx.raw) + ' orang' } } },
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.dataset.label;
+                  return label + ': ' + Math.abs(context.raw) + ' orang';
+                }
+              }
+            }
+          },
           scales: {
-            x: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94a3b8', callback: v => Math.abs(v) } },
-            y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+            x: {
+              grid: {
+                color: function(context) {
+                  if (context.tick.value === 0) {
+                    return 'rgba(255, 255, 255, 0.3)';
+                  }
+                  return 'rgba(148, 163, 184, 0.1)';
+                },
+                lineWidth: 2
+              },
+              ticks: {
+                color: '#94a3b8',
+                callback: function(value) {
+                  return Math.abs(value);
+                }
+              },
+              stacked: false
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 12, weight: '500' } },
+              barPercentage: 0.8
+            }
           }
-        }
+        },
+        plugins: [{
+          id: 'centerLine',
+          afterDraw: function(chart) {
+            const ctx = chart.ctx;
+            const xAxis = chart.scales.x;
+            const yAxis = chart.scales.y;
+            const y0 = yAxis.getPixelForValue(0);
+            const xCenter = xAxis.getPixelForValue(0);
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(xCenter, yAxis.top);
+            ctx.lineTo(xCenter, yAxis.bottom);
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw center label
+            ctx.save();
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Laki-laki', xAxis.getPixelForValue(-25), yAxis.top - 10);
+            ctx.fillText('Perempuan', xAxis.getPixelForValue(25), yAxis.top - 10);
+            ctx.restore();
+          }
+        }]
       });
     }
 
