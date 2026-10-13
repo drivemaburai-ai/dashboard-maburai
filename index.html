@@ -3,18 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>Dashboard Maburai 2026</title>
-  <script>
-    // Force reload if cached version detected
-    if (performance.navigation.type === 2) {
-      location.reload(true);
-    }
-  </script>
+  <title>Kelompok Maburai 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/chart.js@3.9.1/dist/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
@@ -89,14 +80,15 @@
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">M</div>
-        <h1 class="text-xl font-bold gradient-text">Dashboard Maburai 2026</h1>
+        <h1 class="text-xl font-bold gradient-text">Maburai 2026</h1>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <a href="#demografi" class="btn-glass text-sm">Demografi</a>
-        <a href="#keuangan" class="btn-glass text-sm">Keuangan</a>
-        <button onclick="window.print()" class="btn-glass text-sm">Cetak</button>
-        <button id="theme-toggle" class="btn-glass text-lg" title="Ganti Tema">T</button>
-        <button onclick="refreshData()" class="btn-glass text-lg" title="Refresh">R</button>
+        <button onclick="window.print()" class="btn-glass text-sm p-2" title="Cetak" style="color: white;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        </button>
+        <button onclick="refreshData()" class="btn-glass text-lg p-2" title="Refresh" style="color: white;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -107,12 +99,8 @@
     <div class="absolute top-10 left-10 w-32 h-32 rounded-full bg-white/10 blur-2xl float-blur"></div>
     <div class="absolute bottom-10 right-10 w-40 h-40 rounded-full bg-white/10 blur-3xl float-blur" style="animation-delay: -4s;"></div>
     <div class="max-w-7xl mx-auto relative text-center">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm mb-4">
-        <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
-        <span class="text-sm font-medium text-white">Data Real-time dari Google Sheets</span>
-      </div>
       <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Kelompok Maburai 2026</h2>
-      <p class="text-white/80 text-lg max-w-2xl mx-auto">Dashboard monitoring data anggota dan keuangan kelompok</p>
+      <p class="text-white/80 text-lg max-w-2xl mx-auto">Dashboard monitoring data jamaah dan keuangan kelompok</p>
     </div>
   </section>
 
@@ -125,44 +113,80 @@
     </div>
 
     <!-- KPI Cards -->
-    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="0">
-        <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">A</div>
-        <p class="text-2xl font-bold">138</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Total Anggota</p>
+    <section class="mb-8">
+      <!-- Row 1: Total Jamaah & KK -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="glass-card p-4" data-aos="fade-up">
+          <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <p class="text-3xl font-bold" id="kpi-total">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Total Jamaah</p>
+        </div>
+        <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="50">
+          <div class="kpi-icon mb-3" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </div>
+          <p class="text-3xl font-bold" id="kpi-kk">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Jumlah KK</p>
+        </div>
+        <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="kpi-icon mb-3 bg-blue-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+          </div>
+          <p class="text-3xl font-bold text-blue-400" id="kpi-pria">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Laki-laki</p>
+        </div>
+        <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="150">
+          <div class="kpi-icon mb-3 bg-pink-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+          </div>
+          <p class="text-3xl font-bold text-pink-400" id="kpi-wanita">0</p>
+          <p class="text-sm" style="color: var(--text-secondary);">Perempuan</p>
+        </div>
       </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="50">
-        <div class="kpi-icon mb-3 bg-blue-500/20">L</div>
-        <p class="text-2xl font-bold text-blue-400">72</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pria (52.2%)</p>
+
+      <!-- Row 2: Gender Ratio Card -->
+      <div class="grid grid-cols-1 lg:grid-cols-1 gap-4 mb-4">
+        <div class="glass-card p-6" data-aos="fade-up">
+          <h3 class="font-semibold mb-4">Rasio Jenis Kelamin</h3>
+          <div class="flex items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+              <span class="text-blue-400 font-medium">Laki-laki</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 rounded-full bg-pink-500"></div>
+              <span class="text-pink-400 font-medium">Perempuan</span>
+            </div>
+          </div>
+          <div class="relative mt-4">
+            <div class="flex h-8 rounded-full overflow-hidden" id="ratio-bar">
+              <!-- Dynamic ratio bar -->
+            </div>
+            <div class="flex justify-between mt-2 text-sm" style="color: var(--text-secondary);">
+              <span id="ratio-pria">0%</span>
+              <span id="ratio-wanita">0%</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="kpi-icon mb-3 bg-pink-500/20">P</div>
-        <p class="text-2xl font-bold text-pink-400">66</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Wanita (47.8%)</p>
+
+      <!-- Row 3: Status Cards -->
+      <h3 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Status Pernikahan</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6" id="status-cards">
+        <!-- Status cards will be added dynamically -->
       </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="150">
-        <div class="kpi-icon mb-3 bg-emerald-500/20">$</div>
-        <p class="text-xl font-bold text-emerald-400">Rp 16.6Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Total Kas</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="kpi-icon mb-3 bg-cyan-500/20">+</div>
-        <p class="text-xl font-bold text-cyan-400">Rp 527Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pemasukan</p>
-      </div>
-      <div class="glass-card p-4" data-aos="fade-up" data-aos-delay="250">
-        <div class="kpi-icon mb-3 bg-rose-500/20">-</div>
-        <p class="text-xl font-bold text-rose-400">Rp 511Jt</p>
-        <p class="text-sm" style="color: var(--text-secondary);">Pengeluaran</p>
+
+      <!-- Row 4: Ket Cards (Generus) -->
+      <h3 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Kategori Jamaah</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3" id="ket-cards">
+        <!-- Ket cards will be added dynamically -->
       </div>
     </section>
 
-    <!-- Demografi Section -->
+    <!-- Jamaah Charts Section -->
     <section id="demografi" class="mb-12 scroll-mt-24">
-      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-        <span>D</span> Demografi Anggota
-      </h2>
       <div class="grid md:grid-cols-3 gap-6">
         <div class="glass-card p-6" data-aos="fade-right">
           <h3 class="font-semibold mb-4">Distribusi Usia</h3>
@@ -201,6 +225,24 @@
           <p class="text-white/80 text-sm mb-1">Total Pengeluaran</p>
           <p class="text-2xl font-bold text-white">Rp 511.000.000</p>
           <p class="text-white/60 text-xs mt-2">Sepanjang periode</p>
+        </div>
+      </div>
+
+      <!-- Generus Chart Section -->
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span>G</span> Generus
+      </h2>
+      <div class="grid lg:grid-cols-2 gap-6 mb-8">
+        <!-- Generus Chart -->
+        <div class="glass-card p-6" data-aos="fade-right">
+          <h3 class="font-semibold mb-4">Distribusi Generus</h3>
+          <div class="chart-container"><canvas id="generusChart"></canvas></div>
+        </div>
+
+        <!-- Generus List -->
+        <div class="glass-card p-6" data-aos="fade-left">
+          <h3 class="font-semibold mb-4">Detail Generus</h3>
+          <div class="space-y-3 max-h-80 overflow-y-auto" id="generus-list"></div>
         </div>
       </div>
 
@@ -250,10 +292,12 @@
   </div>
 
   <script>
-    // CONFIGURATION - GANTI DENGAN SPREADSHEET ID ANDA
+    // CONFIGURATION
     const CONFIG = {
-      USE_GOOGLE_SHEETS: true,  // Set TRUE untuk koneksi Google Sheets
+      USE_GOOGLE_SHEETS: true,
       SPREADSHEET_ID: '1q-InIbqV1y4YaCabqxDEjjA_aU9hPoHyb2foKTnzvBM',
+      GID_DATABASE: null, // Default export (sheet pertama)
+      GID_KEUANGAN: 974641276,
       DEMO_MODE: false
     };
 
@@ -324,162 +368,403 @@
       document.getElementById('modal').classList.remove('show');
     }
 
-    // THEME TOGGLE
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateChartsTheme();
-    });
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    }
-
+    // Chart defaults (Dark mode only)
     function updateChartsTheme() {
-      // Don't reinitialize on theme change - charts will use new defaults
-      // The theme change will be picked up on next chart creation
+      Chart.defaults.color = '#94a3b8';
+      Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+      renderCharts();
     }
 
-    // DATA FETCHING
+    // DATA FETCHING FROM GOOGLE SHEETS
     async function fetchFromGoogleSheets() {
       try {
-        const url = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Spreadsheet tidak ditemukan atau belum di-publish');
-        const csv = await response.text();
-        console.log('CSV Data:', csv);
-        return { success: true, data: csv };
+        // Fetch Database sheet (default/first sheet)
+        const dbUrl = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv';
+        const dbResponse = await fetch(dbUrl);
+        if (!dbResponse.ok) throw new Error('Gagal mengambil data Database');
+        const dbCsv = await dbResponse.text();
+
+        // Fetch Keuangan sheet
+        const kasUrl = 'https://docs.google.com/spreadsheets/d/' + CONFIG.SPREADSHEET_ID + '/export?format=csv&gid=' + CONFIG.GID_KEUANGAN;
+        const kasResponse = await fetch(kasUrl);
+        if (!kasResponse.ok) throw new Error('Gagal mengambil data Keuangan');
+        const kasCsv = await kasResponse.text();
+
+        console.log('Database CSV:', dbCsv.substring(0, 500));
+        console.log('Keuangan CSV:', kasCsv.substring(0, 500));
+
+        return { success: true, database: dbCsv, keuangan: kasCsv };
       } catch (error) {
         console.error('Error:', error);
-        showToast('Error', 'Gagal mengambil data: ' + error.message);
+        showToast('Error', error.message);
         return { success: false, error: error.message };
       }
     }
 
     // PARSE CSV DATA
-    function parseSheetsData(csv) {
-      const lines = csv.trim().split('\n');
-      if (lines.length < 2) return null;
+    function parseDatabaseCSV(csv) {
+      const lines = csv.split('\n').filter(line => line.trim());
+      const data = [];
 
-      const firstLine = lines[0].toLowerCase();
-
-      // Deteksi format
-      if (firstLine.includes('tanggal') || firstLine.includes('keterangan')) {
-        return parseKeuangan(lines);
-      } else if (firstLine.includes('nama') || firstLine.includes('jk')) {
-        return parseJamaah(lines);
-      }
-
-      // Default: asumsi format keuangan sederhana
-      return parseKeuangan(lines);
-    }
-
-    function parseKeuangan(lines) {
-      let items = [];
-      let totalMasuk = 0;
-      let totalKeluar = 0;
-
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
-        if (cols.length < 4) continue;
-
-        const tanggal = cols[0]?.trim() || '';
-        const keterangan = cols[1]?.trim() || '';
-        const tipe = cols[2]?.toLowerCase().trim() || '';
-        const jumlah = parseInt((cols[3] || '0').replace(/[^0-9]/g, '')) || 0;
-
-        if (tipe.includes('masuk')) {
-          totalMasuk += jumlah;
-        } else if (tipe.includes('keluar')) {
-          totalKeluar += jumlah;
+      // Cari header
+      let headerRow = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        if (line.includes('no') && line.includes('usia') && line.includes('jk')) {
+          headerRow = i;
+          break;
         }
-
-        items.push({
-          id: i,
-          tanggal: tanggal,
-          keterangan: keterangan,
-          type: tipe.includes('masuk') ? 'masuk' : 'keluar',
-          jumlah: jumlah,
-          category: cols[4]?.trim() || 'lain'
-        });
       }
 
-      financeData = {
-        kas: { total: totalMasuk - totalKeluar, pemasukan: totalMasuk, pengeluaran: totalKeluar },
-        items: items
-      };
-    }
-
-    function parseJamaah(lines) {
-      let pria = 0, wanita = 0;
-      let ageGroup = { '<20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '>50': 0 };
-      let menikah = 0, belum = 0, cerai = 0;
-
-      for (let i = 1; i < lines.length; i++) {
-        const cols = lines[i].split(',');
-        if (cols.length < 3) continue;
-
-        const jk = (cols[1] || '').toUpperCase().trim();
-        const usia = parseInt(cols[2]) || 0;
-        const status = (cols[3] || '').toLowerCase().trim();
-
-        if (jk === 'L' || jk === 'PRIA' || jk === 'LAKI') pria++;
-        else if (jk === 'P' || jk === 'WANITA' || jk === 'PEREMPUAN') wanita++;
-
-        if (usia < 20) ageGroup['<20']++;
-        else if (usia <= 30) ageGroup['20-30']++;
-        else if (usia <= 40) ageGroup['31-40']++;
-        else if (usia <= 50) ageGroup['41-50']++;
-        else ageGroup['>50']++;
-
-        if (status.includes('nikah')) menikah++;
-        else if (status.includes('cerai')) cerai++;
-        else belum++;
+      // Parse data
+      if (headerRow >= 0) {
+        for (let i = headerRow + 1; i < lines.length; i++) {
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length >= 5 && cols[0] && cols[0].trim()) {
+            data.push({
+              no: cols[0]?.trim(),
+              nama: cols[1]?.trim() || '',
+              usia: parseInt(cols[2]) || 0,
+              status1: cols[3]?.trim() || '',
+              jk: cols[4]?.trim().toLowerCase() || '',
+              ket: cols[5]?.trim() || ''
+            });
+          }
+        }
       }
 
-      dbData = {
-        total: pria + wanita,
-        pria: pria,
-        wanita: wanita,
-        ageGroups: { labels: ['< 20', '20-30', '31-40', '41-50', '> 50'], values: [ageGroup['<20'], ageGroup['20-30'], ageGroup['31-40'], ageGroup['41-50'], ageGroup['>50']] },
-        gender: { labels: ['Pria', 'Wanita'], values: [pria, wanita] },
-        marital: { labels: ['Menikah', 'Belum Menikah', 'Cerai'], values: [menikah, belum, cerai] }
-      };
+      console.log('Parsed Database:', data.length, 'records');
+      return data;
     }
 
-    function updateAllUI() {
+    function parseKeuanganCSV(csv) {
+      const lines = csv.split('\n').filter(line => line.trim());
+      const data = [];
+
+      // Cari header
+      let headerRow = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        if (line.includes('kas') || line.includes('kredit') || line.includes('debit')) {
+          headerRow = i;
+          break;
+        }
+      }
+
+      // Parse data
+      if (headerRow >= 0) {
+        for (let i = headerRow + 1; i < lines.length; i++) {
+          const cols = parseCSVLine(lines[i]);
+          if (cols.length >= 3 && (cols[0]?.trim() || cols[1]?.trim())) {
+            data.push({
+              kas: cols[0]?.trim() || '',
+              kredit: parseNumber(cols[1]),
+              debit: parseNumber(cols[2]),
+              saldo: parseNumber(cols[3]),
+              color: cols[4]?.trim() || ''
+            });
+          }
+        }
+      }
+
+      console.log('Parsed Keuangan:', data.length, 'records');
+      return data;
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function parseNumber(str) {
+      if (!str) return 0;
+      // Handle string dengan format: "  381,505,199 " atau "381.505.199"
+      // Hapus spasi
+      let cleaned = str.toString().trim();
+      // Hapus semua karakter non-angka
+      cleaned = cleaned.replace(/[^\d]/g, '');
+      // Parse sebagai integer
+      return parseInt(cleaned) || 0;
+    }
+
+    // UPDATE DASHBOARD WITH REAL DATA
+    function updateDashboardWithRealData(database, keuangan) {
+      // ===== DEMOGRAFI =====
+      const total = database.length;
+      const pria = database.filter(d =>
+        d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk'
+      ).length;
+      const wanita = database.filter(d =>
+        d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan'
+      ).length;
+
+      // Hitung distribusi usia
+      const ageGroups = { '< 20': 0, '20-30': 0, '31-40': 0, '41-50': 0, '> 50': 0 };
+      database.forEach(d => {
+        const usia = d.usia;
+        if (usia < 20) ageGroups['< 20']++;
+        else if (usia <= 30) ageGroups['20-30']++;
+        else if (usia <= 40) ageGroups['31-40']++;
+        else if (usia <= 50) ageGroups['41-50']++;
+        else ageGroups['> 50']++;
+      });
+
+      // Hitung generus berdasarkan field "ket"
+      const generus = {
+        paud: 0,
+        caberawit: 0,
+        praremaja: 0,
+        remaja: 0,
+        pranikah: 0
+      };
+
+      database.forEach(d => {
+        const ket = (d.ket || '').toLowerCase();
+        if (ket.includes('paud')) generus.paud++;
+        else if (ket.includes('cabe') || ket.includes('cabai')) generus.caberawit++;
+        else if (ket.includes('pra remaja') || ket.includes('praremaja')) generus.praremaja++;
+        else if (ket.includes('remaja') && !ket.includes('pra')) generus.remaja++;
+        else if (ket.includes('pra nikah') || ket.includes('pranikah') || ket.includes('dewasa')) generus.pranikah++;
+      });
+
+      // Hitung status pernikahan
+      const statusMap = {};
+      database.forEach(d => {
+        const status = d.status1 || '';
+        if (status) {
+          statusMap[status] = (statusMap[status] || 0) + 1;
+        }
+      });
+
+      // Hitung ket (kategori)
+      const ketMap = {};
+      database.forEach(d => {
+        const ket = d.ket || '';
+        if (ket) {
+          ketMap[ket] = (ketMap[ket] || 0) + 1;
+        }
+      });
+
+      // Update dbData global
+      dbData.database = database;
+      dbData.total = total;
+      dbData.pria = pria;
+      dbData.wanita = wanita;
+      dbData.ageGroups = {
+        labels: Object.keys(ageGroups),
+        values: Object.values(ageGroups)
+      };
+      dbData.marital = {
+        labels: Object.keys(statusMap),
+        values: Object.values(statusMap)
+      };
+      dbData.gender = {
+        labels: ['Laki-laki', 'Perempuan'],
+        values: [pria, wanita]
+      };
+      dbData.ketCounts = ketMap;
+      dbData.generus = generus;
+
+      // ===== KEUANGAN =====
+      let totalKredit = 0;
+      let totalDebit = 0;
+      let saldoAkhir = 0;
+
+      keuangan.forEach(k => {
+        totalKredit += k.kredit;
+        totalDebit += k.debit;
+        if (k.saldo > 0) saldoAkhir = k.saldo;
+      });
+
+      // Update financeData global
+      financeData.kas = {
+        total: saldoAkhir,
+        pemasukan: totalKredit,
+        pengeluaran: totalDebit
+      };
+
+      financeData.items = keuangan.map((k, i) => ({
+        id: i + 1,
+        tanggal: k.kas,
+        keterangan: k.kas,
+        type: k.kredit > 0 ? 'masuk' : 'keluar',
+        jumlah: k.kredit > 0 ? k.kredit : k.debit,
+        category: 'transaksi'
+      }));
+
+      // Calculate KK (Households) - based on married couples
+      const marriedCount = dbData.marital.values.reduce((sum, val, i) => {
+        if (dbData.marital.labels[i] === 'Kawin') return sum + val;
+        return sum;
+      }, 0);
+      const kk = Math.ceil(marriedCount / 2); // Each KK has couple (2 married people)
+      dbData.kk = kk;
+
       // Update KPI cards
-      const kpiCards = document.querySelectorAll('section.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-6.gap-4.mb-8 .glass-card');
-      if (kpiCards.length >= 6) {
-        kpiCards[0].querySelector('p.text-2xl').textContent = dbData.total;
-        kpiCards[1].querySelector('p.text-2xl').textContent = dbData.pria;
-        kpiCards[2].querySelector('p.text-2xl').textContent = dbData.wanita;
-      }
+      updateKPICards();
 
-      // Update finance summary
-      const summaryCards = document.querySelectorAll('#keuangan .grid.md\\:grid-cols-3.gap-4.mb-6 .glass-card');
-      if (summaryCards.length >= 3) {
-        summaryCards[0].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.total);
-        summaryCards[1].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
-        summaryCards[2].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
-      }
-
-      // Re-create charts with new data (charts are destroyed inside each createXxxChart function)
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      const textColor = isDark ? '#94a3b8' : '#475569';
-      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-
-      createAgeChart(textColor, gridColor);
-      createGenderChart(textColor);
-      createMaritalChart(textColor);
-      createKasChart(textColor, gridColor);
-
+      // Re-render charts and list
+      renderCharts();
       renderKasList();
+      renderGenerusChart();
+    }
+
+    function updateKPICards() {
+      // Update Total Jamaah
+      const totalEl = document.getElementById('kpi-total');
+      if (totalEl) totalEl.textContent = dbData.total;
+
+      // Update KK
+      const kkEl = document.getElementById('kpi-kk');
+      if (kkEl) kkEl.textContent = dbData.kk || 0;
+
+      // Update Laki-laki/Perempuan
+      const priaEl = document.getElementById('kpi-pria');
+      if (priaEl) priaEl.textContent = dbData.pria;
+
+      const wanitaEl = document.getElementById('kpi-wanita');
+      if (wanitaEl) wanitaEl.textContent = dbData.wanita;
+
+      // Update Gender Ratio Bar
+      updateGenderRatio();
+
+      // Create Status Cards dynamically
+      createStatusCards();
+
+      // Create Ket Cards dynamically
+      createKetCards();
+
+      // Update Keuangan summary cards
+      const summaryCards = document.querySelectorAll('#keuangan .glass-card');
+      if (summaryCards[0]) summaryCards[0].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.total);
+      if (summaryCards[1]) summaryCards[1].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pemasukan);
+      if (summaryCards[2]) summaryCards[2].querySelector('.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
+    }
+
+    function updateGenderRatio() {
+      const total = dbData.total || 1;
+      const priaPct = Math.round((dbData.pria / total) * 100);
+      const wanitaPct = 100 - priaPct;
+
+      const ratioBar = document.getElementById('ratio-bar');
+      const ratioPria = document.getElementById('ratio-pria');
+      const ratioWanita = document.getElementById('ratio-wanita');
+
+      if (ratioBar) {
+        ratioBar.innerHTML = `
+          <div class="h-full bg-blue-500 flex items-center justify-center" style="width: ${priaPct}%;">
+            <span class="text-white font-bold text-sm px-2">${priaPct}%</span>
+          </div>
+          <div class="h-full bg-pink-500 flex items-center justify-center" style="width: ${wanitaPct}%;">
+            <span class="text-white font-bold text-sm px-2">${wanitaPct}%</span>
+          </div>
+        `;
+      }
+
+      if (ratioPria) ratioPria.textContent = dbData.pria + ' (' + priaPct + '%)';
+      if (ratioWanita) ratioWanita.textContent = dbData.wanita + ' (' + wanitaPct + '%)';
+    }
+
+    // Create Status Cards dynamically
+    function createStatusCards() {
+      const container = document.getElementById('status-cards');
+      if (!container || !dbData.marital) return;
+
+      const colors = ['#0891b2', '#059669', '#dc2626', '#7c3aed', '#f59e0b'];
+
+      container.innerHTML = dbData.marital.labels.map((status, i) => {
+        const count = dbData.marital.values[i] || 0;
+        const color = colors[i % colors.length];
+        return '<div class="glass-card p-3" style="border-left: 4px solid ' + color + ';"><p class="text-2xl font-bold" style="color: ' + color + ';">' + count + '</p><p class="text-xs" style="color: var(--text-secondary);">' + status + '</p></div>';
+      }).join('');
+    }
+
+    // Create Ket Cards dynamically
+    function createKetCards() {
+      const container = document.getElementById('ket-cards');
+      if (!container || !dbData.ketCounts) return;
+
+      const colors = ['#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
+
+      container.innerHTML = Object.entries(dbData.ketCounts).map(([ket, count], i) => {
+        const color = colors[i % colors.length];
+        return '<div class="glass-card p-3" style="border-left: 4px solid ' + color + ';"><p class="text-2xl font-bold" style="color: ' + color + ';">' + count + '</p><p class="text-xs" style="color: var(--text-secondary);">' + ket + '</p></div>';
+      }).join('');
+    }
+
+    function showGenderDetail(type) {
+      let title = '';
+      let content = '';
+
+      if (type === 'all') {
+        title = 'Detail Jamaah';
+        const priaList = dbData.database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk');
+        const wanitaList = dbData.database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan');
+
+        const priaHtml = priaList.map(d =>
+          '<div class="p-2 rounded mb-1" style="background: var(--bg-primary); border-left: 3px solid #3b82f6;">' +
+            '<p class="font-medium text-sm">' + (d.nama || d.no) + '</p>' +
+            '<p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p>' +
+          '</div>'
+        ).join('');
+
+        const wanitaHtml = wanitaList.map(d =>
+          '<div class="p-2 rounded mb-1" style="background: var(--bg-primary); border-left: 3px solid #ec4899;">' +
+            '<p class="font-medium text-sm">' + (d.nama || d.no) + '</p>' +
+            '<p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p>' +
+          '</div>'
+        ).join('');
+
+        content = '<div class="text-center mb-4">' +
+          '<span class="inline-block px-4 py-2 rounded-full bg-blue-500/20 text-blue-400 mr-2">' +
+            '<span class="text-2xl font-bold">' + dbData.pria + '</span> Laki-laki' +
+          '</span>' +
+          '<span class="inline-block px-4 py-2 rounded-full bg-pink-500/20 text-pink-400">' +
+            '<span class="text-2xl font-bold">' + dbData.wanita + '</span> Perempuan' +
+          '</span>' +
+        '</div>' +
+        '<div class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">' +
+          '<div>' +
+            '<h4 class="font-semibold text-blue-400 mb-2">Laki-laki (' + dbData.pria + ')</h4>' +
+            priaHtml +
+          '</div>' +
+          '<div>' +
+            '<h4 class="font-semibold text-pink-400 mb-2">Perempuan (' + dbData.wanita + ')</h4>' +
+            wanitaHtml +
+          '</div>' +
+        '</div>';
+      } else if (type === 'pria') {
+        title = 'Daftar Laki-laki';
+        const data = dbData.database.filter(d => d.jk === 'l' || d.jk === 'pria' || d.jk === 'laki' || d.jk === 'lk');
+        content = '<div class="text-center mb-3"><span class="px-4 py-2 rounded-full bg-blue-500/20 text-blue-400"><span class="text-xl font-bold">' + dbData.pria + '</span> Laki-laki</span></div>' +
+          '<div class="max-h-96 overflow-y-auto">' +
+            data.map(d => '<div class="p-2 rounded mb-1" style="background: var(--bg-primary);"><p class="font-medium text-sm">' + (d.nama || d.no) + '</p><p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p></div>').join('') +
+          '</div>';
+      } else {
+        title = 'Daftar Perempuan';
+        const data = dbData.database.filter(d => d.jk === 'p' || d.jk === 'wanita' || d.jk === 'perempuan');
+        content = '<div class="text-center mb-3"><span class="px-4 py-2 rounded-full bg-pink-500/20 text-pink-400"><span class="text-xl font-bold">' + dbData.wanita + '</span> Perempuan</span></div>' +
+          '<div class="max-h-96 overflow-y-auto">' +
+            data.map(d => '<div class="p-2 rounded mb-1" style="background: var(--bg-primary);"><p class="font-medium text-sm">' + (d.nama || d.no) + '</p><p class="text-xs" style="color: var(--text-secondary);">Usia: ' + d.usia + '</p></div>').join('') +
+          '</div>';
+      }
+
+      openModal(title, content);
     }
 
     async function refreshData() {
@@ -488,39 +773,40 @@
       setTimeout(() => btn.style.transform = '', 1000);
 
       if (CONFIG.USE_GOOGLE_SHEETS) {
-        document.getElementById('data-mode').textContent = 'Memuat...';
         const result = await fetchFromGoogleSheets();
-
         if (result.success) {
-          parseSheetsData(result.data);
-          document.getElementById('data-mode').textContent = 'Google Sheets';
+          const database = parseDatabaseCSV(result.database);
+          const keuangan = parseKeuanganCSV(result.keuangan);
+          updateDashboardWithRealData(database, keuangan);
+          document.getElementById('data-mode').textContent = 'Live Data';
           document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
-          updateAllUI();
-          showToast('Berhasil', 'Data berhasil diperbarui dari Google Sheets');
-        } else {
-          document.getElementById('data-mode').textContent = 'Demo';
         }
       }
 
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
+      showToast('Berhasil', 'Data berhasil diperbarui');
     }
 
-    // CHART RENDERING - FIXED VERSION
-    let chartInitialized = false;
+    // CHART RENDERING
+    const chartInstances = {};
 
-    // Store chart instances globally
-    const charts = {};
-
-    function destroyAllCharts() {
-      Object.values(charts).forEach(chart => {
-        if (chart) chart.destroy();
-      });
+    function safeDestroyChart(key) {
+      if (chartInstances[key]) {
+        chartInstances[key].destroy();
+        delete chartInstances[key];
+      }
     }
 
-    function createAgeChart(textColor, gridColor) {
-      destroyAllCharts(); // Destroy existing chart first
-      const ctx = document.getElementById('ageChart').getContext('2d');
-      charts.ageChart = new Chart(ctx, {
+    function renderCharts() {
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const textColor = isDark ? '#94a3b8' : '#475569';
+      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+
+      // Safely destroy all existing charts
+      Object.keys(chartInstances).forEach(key => safeDestroyChart(key));
+
+      const ageCtx = document.getElementById('ageChart').getContext('2d');
+      chartInstances.age = new Chart(ageCtx, {
         type: 'bar',
         data: {
           labels: dbData.ageGroups.labels,
@@ -547,17 +833,14 @@
           }
         }
       });
-    }
 
-    function createGenderChart(textColor) {
-      destroyAllCharts(); // Destroy existing chart first
-      const ctx = document.getElementById('genderChart').getContext('2d');
-      charts.genderChart = new Chart(ctx, {
+      const genderCtx = document.getElementById('genderChart').getContext('2d');
+      chartInstances.gender = new Chart(genderCtx, {
         type: 'doughnut',
         data: {
-          labels: dbData.gender.labels,
+          labels: ['Laki-laki', 'Perempuan'],
           datasets: [{
-            data: dbData.gender.values,
+            data: [dbData.pria, dbData.wanita],
             backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
             borderWidth: 0
           }]
@@ -571,18 +854,15 @@
           }
         }
       });
-    }
 
-    function createMaritalChart(textColor) {
-      destroyAllCharts(); // Destroy existing chart first
-      const ctx = document.getElementById('maritalChart').getContext('2d');
-      charts.maritalChart = new Chart(ctx, {
+      const maritalCtx = document.getElementById('maritalChart').getContext('2d');
+      chartInstances.marital = new Chart(maritalCtx, {
         type: 'doughnut',
         data: {
           labels: dbData.marital.labels,
           datasets: [{
             data: dbData.marital.values,
-            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(139, 92, 246, 0.8)'],
             borderWidth: 0
           }]
         },
@@ -595,12 +875,9 @@
           }
         }
       });
-    }
 
-    function createKasChart(textColor, gridColor) {
-      destroyAllCharts(); // Destroy existing chart first
-      const ctx = document.getElementById('kasChart').getContext('2d');
-      charts.kasChart = new Chart(ctx, {
+      const kasCtx = document.getElementById('kasChart').getContext('2d');
+      chartInstances.kas = new Chart(kasCtx, {
         type: 'bar',
         data: {
           labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
@@ -640,27 +917,9 @@
           }
         }
       });
-    }
 
-    async function initCharts() {
-      // Only initialize once on page load
-      if (chartInitialized) {
-        console.log('Charts already initialized, skipping');
-        return;
-      }
-
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      const textColor = isDark ? '#94a3b8' : '#475569';
-      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-
-      // Create all charts
-      createAgeChart(textColor, gridColor);
-      createGenderChart(textColor);
-      createMaritalChart(textColor);
-      createKasChart(textColor, gridColor);
-
-      chartInitialized = true;
-      console.log('All charts initialized successfully');
+      // Render Generus Chart separately (not inside renderCharts to avoid overwriting)
+      renderGenerusChart();
     }
 
     function renderKasList() {
@@ -681,6 +940,60 @@
           '</span>' +
         '</div>'
       ).join('');
+    }
+
+    function renderGenerusChart() {
+      const generusCtx = document.getElementById('generusChart');
+      if (!generusCtx || !dbData.ketCounts) return;
+
+      const labels = Object.keys(dbData.ketCounts);
+      const values = Object.values(dbData.ketCounts);
+      if (labels.length === 0) return;
+
+      const colors = ['rgba(6, 182, 212, 0.8)', 'rgba(139, 92, 246, 0.8)', 'rgba(236, 72, 153, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'];
+
+      // Safely destroy existing generus chart
+      safeDestroyChart('generus');
+
+      chartInstances.generus = new Chart(generusCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Jumlah',
+            data: values,
+            backgroundColor: colors.slice(0, labels.length),
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+
+      renderGenerusList();
+    }
+
+    function renderGenerusList() {
+      const container = document.getElementById('generus-list');
+      if (!container || !dbData.ketCounts) return;
+
+      const colors = ['#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
+
+      container.innerHTML = Object.entries(dbData.ketCounts).map(([ket, count], i) => {
+        const color = colors[i % colors.length];
+        return '<div class="flex items-center justify-between p-3 rounded-lg" style="background: var(--bg-primary); border-left: 4px solid ' + color + ';">' +
+          '<div><p class="font-medium text-sm">' + ket + '</p></div>' +
+          '<span class="font-bold text-lg" style="color: ' + color + ';">' + count + '</span>' +
+        '</div>';
+      }).join('');
     }
 
     function showKasDetail(id) {
@@ -719,7 +1032,7 @@
     }
 
     // INITIALIZATION
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       AOS.init({ duration: 600, once: true });
 
       const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -727,7 +1040,8 @@
       Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
-      initCharts();
+      // Render dengan data demo dulu
+      renderCharts();
       renderKasList();
 
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
@@ -735,6 +1049,22 @@
       document.getElementById('modal').addEventListener('click', (e) => {
         if (e.target.id === 'modal') closeModal();
       });
+
+      // Auto-load dari Google Sheets jika enabled
+      if (CONFIG.USE_GOOGLE_SHEETS) {
+        try {
+          const result = await fetchFromGoogleSheets();
+          if (result.success) {
+            const database = parseDatabaseCSV(result.database);
+            const keuangan = parseKeuanganCSV(result.keuangan);
+            updateDashboardWithRealData(database, keuangan);
+            document.getElementById('data-mode').textContent = 'Live Data';
+            document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
+          }
+        } catch (error) {
+          console.log('Gagal load dari Google Sheets, menggunakan data demo');
+        }
+      }
 
       setTimeout(() => {
         document.getElementById('loading-screen').style.opacity = '0';
@@ -745,10 +1075,6 @@
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
-      if (e.ctrlKey && e.key === 'd') {
-        e.preventDefault();
-        themeToggle.click();
-      }
     });
   </script>
 </body>
