@@ -199,19 +199,24 @@
 
     <!-- Jamaah Charts Section -->
     <section id="demografi" class="mb-12 scroll-mt-24">
-      <div class="grid md:grid-cols-3 gap-6">
+      <div class="grid lg:grid-cols-2 gap-6">
         <div class="glass-card p-6" data-aos="fade-right">
-          <h3 class="font-semibold mb-4">Distribusi Usia</h3>
-          <div class="chart-container"><canvas id="ageChart"></canvas></div>
-        </div>
-        <div class="glass-card p-6" data-aos="fade-up">
-          <h3 class="font-semibold mb-4">Jenis Kelamin</h3>
-          <div class="chart-container"><canvas id="genderChart"></canvas></div>
+          <h3 class="font-semibold mb-4 text-center">Status Pernikahan</h3>
+          <div style="height: 280px;"><canvas id="maritalChart"></canvas></div>
         </div>
         <div class="glass-card p-6" data-aos="fade-left">
-          <h3 class="font-semibold mb-4">Status Pernikahan</h3>
-          <div class="chart-container"><canvas id="maritalChart"></canvas></div>
+          <h3 class="font-semibold mb-4 text-center">Kategori Jamaah</h3>
+          <div style="height: 280px;"><canvas id="ketChart"></canvas></div>
         </div>
+      </div>
+    </section>
+
+    <!-- Kategori Jamaah Section -->
+    <section class="mb-8">
+      <div class="glass-card p-6" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Detail Kategori Jamaah</h3>
+        <div style="height: 300px;"><canvas id="generusChart"></canvas></div>
+        <div class="flex justify-center gap-4 mt-4" id="generus-legend"></div>
       </div>
     </section>
 
