@@ -185,6 +185,18 @@
       </div>
     </section>
 
+    <!-- Piramida Jamaah Chart -->
+    <section class="mb-8">
+      <div class="glass-card p-6" data-aos="fade-up">
+        <h3 class="font-semibold mb-4 text-center">Piramida Jamaah (Distribusi Usia & Jenis Kelamin)</h3>
+        <div style="height: 350px;"><canvas id="pyramidChart"></canvas></div>
+        <div class="flex justify-center gap-6 mt-4">
+          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-blue-500"></div><span class="text-sm">Laki-laki</span></div>
+          <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-pink-500"></div><span class="text-sm">Perempuan</span></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Jamaah Charts Section -->
     <section id="demografi" class="mb-12 scroll-mt-24">
       <div class="grid md:grid-cols-3 gap-6">
@@ -306,12 +318,16 @@
       total: 138,
       pria: 72,
       wanita: 66,
+      kk: 31,
+      database: [],
       ageGroups: {
         labels: ['< 20', '20-30', '31-40', '41-50', '> 50'],
         values: [12, 45, 38, 28, 15]
       },
+      priaByAge: { '< 20': 6, '20-30': 22, '31-40': 20, '41-50': 14, '> 50': 10 },
+      wanitaByAge: { '< 20': 6, '20-30': 23, '31-40': 18, '41-50': 14, '> 50': 5 },
       gender: {
-        labels: ['Pria', 'Wanita'],
+        labels: ['Laki-laki', 'Perempuan'],
         values: [72, 66]
       },
       marital: {
@@ -797,6 +813,14 @@
 
       Object.values(chartInstances).forEach(chart => chart.destroy());
 
+      renderPyramidChart();
+
+
+
+      renderPyramidChart();
+
+
+
       const ageCtx = document.getElementById('ageChart').getContext('2d');
       chartInstances.age = new Chart(ageCtx, {
         type: 'bar',
@@ -909,6 +933,33 @@
               }
             },
             y: { grid: { display: false }, ticks: { color: textColor } }
+          }
+        }
+      });
+    }
+
+    function renderPyramidChart() {
+      const ctx = document.getElementById('pyramidChart');
+      if (!ctx) return;
+      if (chartInstances.pyramid) chartInstances.pyramid.destroy();
+      const labels = ['< 20', '20-30', '31-40', '41-50', '> 50'];
+      const priaData = labels.map(l => -(dbData.priaByAge[l] || 0));
+      const wanitaData = labels.map(l => dbData.wanitaByAge[l] || 0);
+      chartInstances.pyramid = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Laki-laki', data: priaData, backgroundColor: 'rgba(59, 130, 246, 0.8)', borderRadius: 4 },
+            { label: 'Perempuan', data: wanitaData, backgroundColor: 'rgba(236, 72, 153, 0.8)', borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => Math.abs(ctx.raw) + ' orang' } } },
+          scales: {
+            x: { grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94a3b8', callback: v => Math.abs(v) } },
+            y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
           }
         }
       });
