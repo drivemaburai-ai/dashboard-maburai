@@ -333,29 +333,8 @@
     }
 
     function updateChartsTheme() {
-      if (!chartsInitialized) return; // Don't update if charts not yet rendered
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      Chart.defaults.color = isDark ? '#94a3b8' : '#475569';
-      Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-      // Update existing charts' colors
-      Object.values(chartInstances).forEach(chart => {
-        if (chart && chart.options && chart.options.scales) {
-          const textColor = isDark ? '#94a3b8' : '#475569';
-          const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-          if (chart.options.scales.x) {
-            chart.options.scales.x.ticks.color = textColor;
-            if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = gridColor;
-          }
-          if (chart.options.scales.y) {
-            chart.options.scales.y.ticks.color = textColor;
-            if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
-          }
-          if (chart.options.plugins && chart.options.plugins.legend) {
-            chart.options.plugins.legend.labels.color = textColor;
-          }
-          chart.update();
-        }
-      });
+      // Simply reinitialize charts with new theme colors
+      initCharts();
     }
 
     // DATA FETCHING
@@ -482,9 +461,8 @@
         summaryCards[2].querySelector('p.text-2xl').textContent = formatCurrency(financeData.kas.pengeluaran);
       }
 
-      // Re-render charts
-      chartsInitialized = false;
-      renderCharts();
+      // Re-render charts (initCharts handles cleanup internally)
+      initCharts();
       renderKasList();
     }
 
@@ -511,164 +489,163 @@
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
     }
 
-    // CHART RENDERING
-    const chartInstances = {};
-    let chartsInitialized = false;
+    // CHART RENDERING - ROBUST VERSION
+    function safeDestroyChart(id) {
+      try {
+        const existingChart = Chart.getChart(id);
+        if (existingChart) {
+          existingChart.destroy();
+        }
+        // Also clear the canvas context
+        const canvas = document.getElementById(id);
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      } catch (e) {
+        console.warn('Chart cleanup warning:', e);
+      }
+    }
 
-    function destroyCharts() {
-      Object.keys(chartInstances).forEach(key => {
-        if (chartInstances[key]) {
-          chartInstances[key].destroy();
-          chartInstances[key] = null;
+    function initCharts() {
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const textColor = isDark ? '#94a3b8' : '#475569';
+      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+
+      // Destroy ALL existing charts safely
+      safeDestroyChart('ageChart');
+      safeDestroyChart('genderChart');
+      safeDestroyChart('maritalChart');
+      safeDestroyChart('kasChart');
+
+      // Small delay to ensure cleanup is complete
+      setTimeout(() => {
+        createAgeChart(textColor, gridColor);
+        createGenderChart(textColor);
+        createMaritalChart(textColor);
+        createKasChart(textColor, gridColor);
+      }, 50);
+    }
+
+    function createAgeChart(textColor, gridColor) {
+      const ctx = document.getElementById('ageChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dbData.ageGroups.labels,
+          datasets: [{
+            label: 'Jumlah',
+            data: dbData.ageGroups.values,
+            backgroundColor: [
+              'rgba(6, 182, 212, 0.7)',
+              'rgba(139, 92, 246, 0.7)',
+              'rgba(236, 72, 153, 0.7)',
+              'rgba(245, 158, 11, 0.7)',
+              'rgba(16, 185, 129, 0.7)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+            x: { grid: { display: false }, ticks: { color: textColor } }
+          }
         }
       });
     }
 
-    function renderCharts() {
-      try {
-        // Destroy existing charts first
-        destroyCharts();
-
-        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-        const textColor = isDark ? '#94a3b8' : '#475569';
-        const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-
-        // Wait for DOM to be ready
-        const ageChartEl = document.getElementById('ageChart');
-        const genderChartEl = document.getElementById('genderChart');
-        const maritalChartEl = document.getElementById('maritalChart');
-        const kasChartEl = document.getElementById('kasChart');
-
-        if (!ageChartEl || !genderChartEl || !maritalChartEl || !kasChartEl) {
-          console.warn('Chart elements not found, retrying...');
-          setTimeout(renderCharts, 100);
-          return;
+    function createGenderChart(textColor) {
+      const ctx = document.getElementById('genderChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: dbData.gender.labels,
+          datasets: [{
+            data: dbData.gender.values,
+            backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+          }
         }
+      });
+    }
 
-        // Create Age Chart
-        const ageCtx = ageChartEl.getContext('2d');
-        chartInstances.age = new Chart(ageCtx, {
-          type: 'bar',
-          data: {
-            labels: dbData.ageGroups.labels,
-            datasets: [{
-              label: 'Jumlah',
-              data: dbData.ageGroups.values,
-              backgroundColor: [
-                'rgba(6, 182, 212, 0.7)',
-                'rgba(139, 92, 246, 0.7)',
-                'rgba(236, 72, 153, 0.7)',
-                'rgba(245, 158, 11, 0.7)',
-                'rgba(16, 185, 129, 0.7)'
-              ],
-              borderRadius: 8
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
-              x: { grid: { display: false }, ticks: { color: textColor } }
-            }
+    function createMaritalChart(textColor) {
+      const ctx = document.getElementById('maritalChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: dbData.marital.labels,
+          datasets: [{
+            data: dbData.marital.values,
+            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
           }
-        });
+        }
+      });
+    }
 
-        // Create Gender Chart
-        const genderCtx = genderChartEl.getContext('2d');
-        chartInstances.gender = new Chart(genderCtx, {
-          type: 'doughnut',
-          data: {
-            labels: dbData.gender.labels,
-            datasets: [{
-              data: dbData.gender.values,
-              backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
-              borderWidth: 0
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-              legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
-            }
-          }
-        });
-
-        // Create Marital Chart
-        const maritalCtx = maritalChartEl.getContext('2d');
-        chartInstances.marital = new Chart(maritalCtx, {
-          type: 'doughnut',
-          data: {
-            labels: dbData.marital.labels,
-            datasets: [{
-              data: dbData.marital.values,
-              backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-              borderWidth: 0
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-              legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
-            }
-          }
-        });
-
-        // Create Kas Chart
-        const kasCtx = kasChartEl.getContext('2d');
-        chartInstances.kas = new Chart(kasCtx, {
-          type: 'bar',
-          data: {
-            labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
-            datasets: [{
-              label: 'Jumlah (Rp)',
-              data: [
-                financeData.kas.total,
-                financeData.kas.pemasukan,
-                financeData.kas.pengeluaran
-              ],
-              backgroundColor: [
-                'rgba(6, 182, 212, 0.8)',
-                'rgba(16, 185, 129, 0.8)',
-                'rgba(239, 68, 68, 0.8)'
-              ],
-              borderRadius: 8
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            plugins: { legend: { display: false } },
-            scales: {
-              x: {
-                grid: { color: gridColor },
-                ticks: {
-                  color: textColor,
-                  callback: function(value) {
-                    if (value >= 1000000) return (value / 1000000).toFixed(0) + 'Jt';
-                    if (value >= 1000) return (value / 1000).toFixed(0) + 'Rb';
-                    return value;
-                  }
+    function createKasChart(textColor, gridColor) {
+      const ctx = document.getElementById('kasChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
+          datasets: [{
+            label: 'Jumlah (Rp)',
+            data: [
+              financeData.kas.total,
+              financeData.kas.pemasukan,
+              financeData.kas.pengeluaran
+            ],
+            backgroundColor: [
+              'rgba(6, 182, 212, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: {
+                color: textColor,
+                callback: function(value) {
+                  if (value >= 1000000) return (value / 1000000).toFixed(0) + 'Jt';
+                  if (value >= 1000) return (value / 1000).toFixed(0) + 'Rb';
+                  return value;
                 }
-              },
-              y: { grid: { display: false }, ticks: { color: textColor } }
-            }
+              }
+            },
+            y: { grid: { display: false }, ticks: { color: textColor } }
           }
-        });
-
-        // Mark as initialized
-        chartsInitialized = true;
-        console.log('Charts initialized successfully');
-      } catch (error) {
-        console.error('Error rendering charts:', error);
-        chartsInitialized = false;
-      }
+        }
+      });
     }
 
     function renderKasList() {
@@ -735,7 +712,7 @@
       Chart.defaults.borderColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
-      renderCharts();
+      initCharts();
       renderKasList();
 
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
