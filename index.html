@@ -369,10 +369,10 @@
     }
 
     // Chart defaults (Dark mode only)
-    function updateChartsTheme() {
+    async function updateChartsTheme() {
       Chart.defaults.color = '#94a3b8';
       Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
-      renderCharts();
+      await renderCharts();
     }
 
     // DATA FETCHING FROM GOOGLE SHEETS
@@ -503,7 +503,7 @@
     }
 
     // UPDATE DASHBOARD WITH REAL DATA
-    function updateDashboardWithRealData(database, keuangan) {
+    async function updateDashboardWithRealData(database, keuangan) {
       // ===== DEMOGRAFI =====
       const total = database.length;
       const pria = database.filter(d =>
@@ -619,7 +619,7 @@
       updateKPICards();
 
       // Re-render charts and list
-      renderCharts();
+      await renderCharts();
       renderKasList();
     }
 
@@ -788,6 +788,7 @@
 
     // CHART RENDERING
     const chartInstances = {};
+    let isRenderingCharts = false;
 
     function safeDestroyChart(key) {
       if (chartInstances[key]) {
@@ -796,13 +797,26 @@
       }
     }
 
-    function renderCharts() {
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      const textColor = isDark ? '#94a3b8' : '#475569';
-      const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+    async function destroyAllCharts() {
+      const keys = Object.keys(chartInstances);
+      keys.forEach(key => safeDestroyChart(key));
+      // Wait for next frame to ensure canvas is released
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
 
-      // Safely destroy all existing charts
-      Object.keys(chartInstances).forEach(key => safeDestroyChart(key));
+    async function renderCharts() {
+      // Prevent concurrent chart rendering
+      if (isRenderingCharts) return;
+      isRenderingCharts = true;
+
+      try {
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        const textColor = isDark ? '#94a3b8' : '#475569';
+        const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
+
+        // Safely destroy all existing charts and wait
+        await destroyAllCharts();
 
       const ageCtx = document.getElementById('ageChart').getContext('2d');
       chartInstances.age = new Chart(ageCtx, {
@@ -918,7 +932,10 @@
       });
 
       // Render Generus Chart separately (not inside renderCharts to avoid overwriting)
-      renderGenerusChart();
+      await renderGenerusChart();
+      } finally {
+        isRenderingCharts = false;
+      }
     }
 
     function renderKasList() {
@@ -941,9 +958,10 @@
       ).join('');
     }
 
-    function renderGenerusChart() {
+    async function renderGenerusChart() {
       // Destroy existing chart FIRST before getting context
       safeDestroyChart('generus');
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       const generusCtx = document.getElementById('generusChart');
       if (!generusCtx || !dbData.ketCounts) return;
@@ -1040,7 +1058,7 @@
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
       // Render dengan data demo dulu
-      renderCharts();
+      await renderCharts();
       renderKasList();
 
       document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID');
@@ -1056,7 +1074,7 @@
           if (result.success) {
             const database = parseDatabaseCSV(result.database);
             const keuangan = parseKeuanganCSV(result.keuangan);
-            updateDashboardWithRealData(database, keuangan);
+            await updateDashboardWithRealData(database, keuangan);
             document.getElementById('data-mode').textContent = 'Live Data';
             document.getElementById('data-mode').className = 'px-2 py-0.5 rounded bg-blue-500/20 text-blue-400';
           }
