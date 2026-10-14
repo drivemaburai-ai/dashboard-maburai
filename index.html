@@ -794,15 +794,26 @@
       if (chartInstances[key]) {
         chartInstances[key].destroy();
         delete chartInstances[key];
+        // Clear the canvas explicitly
+        const canvas = document.getElementById(key === 'age' ? 'ageChart' :
+                                        key === 'gender' ? 'genderChart' :
+                                        key === 'marital' ? 'maritalChart' :
+                                        key === 'kas' ? 'kasChart' :
+                                        key === 'generus' ? 'generusChart' : key);
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
       }
     }
 
-    async function destroyAllCharts() {
+    function destroyAllCharts() {
       const keys = Object.keys(chartInstances);
       keys.forEach(key => safeDestroyChart(key));
-      // Wait for next frame to ensure canvas is released
-      await new Promise(resolve => requestAnimationFrame(resolve));
-      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async function renderCharts() {
@@ -811,128 +822,136 @@
       isRenderingCharts = true;
 
       try {
+        // Destroy all existing charts first
+        destroyAllCharts();
+        // Wait for canvas to be fully released
+        await delay(100);
+
         const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
         const textColor = isDark ? '#94a3b8' : '#475569';
         const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(71, 85, 105, 0.1)';
 
-        // Safely destroy all existing charts and wait
-        await destroyAllCharts();
-
-      const ageCtx = document.getElementById('ageChart').getContext('2d');
-      chartInstances.age = new Chart(ageCtx, {
-        type: 'bar',
-        data: {
-          labels: dbData.ageGroups.labels,
-          datasets: [{
-            label: 'Jumlah',
-            data: dbData.ageGroups.values,
-            backgroundColor: [
-              'rgba(6, 182, 212, 0.7)',
-              'rgba(139, 92, 246, 0.7)',
-              'rgba(236, 72, 153, 0.7)',
-              'rgba(245, 158, 11, 0.7)',
-              'rgba(16, 185, 129, 0.7)'
-            ],
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
-            x: { grid: { display: false }, ticks: { color: textColor } }
+        const ageCtx = document.getElementById('ageChart').getContext('2d');
+        chartInstances.age = new Chart(ageCtx, {
+          type: 'bar',
+          data: {
+            labels: dbData.ageGroups.labels,
+            datasets: [{
+              label: 'Jumlah',
+              data: dbData.ageGroups.values,
+              backgroundColor: [
+                'rgba(6, 182, 212, 0.7)',
+                'rgba(139, 92, 246, 0.7)',
+                'rgba(236, 72, 153, 0.7)',
+                'rgba(245, 158, 11, 0.7)',
+                'rgba(16, 185, 129, 0.7)'
+              ],
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+              x: { grid: { display: false }, ticks: { color: textColor } }
+            }
           }
-        }
-      });
+        });
 
-      const genderCtx = document.getElementById('genderChart').getContext('2d');
-      chartInstances.gender = new Chart(genderCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Laki-laki', 'Perempuan'],
-          datasets: [{
-            data: [dbData.pria, dbData.wanita],
-            backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+        await delay(50);
+
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        chartInstances.gender = new Chart(genderCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Laki-laki', 'Perempuan'],
+            datasets: [{
+              data: [dbData.pria, dbData.wanita],
+              backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(236, 72, 153, 0.8)'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+              legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+            }
           }
-        }
-      });
+        });
 
-      const maritalCtx = document.getElementById('maritalChart').getContext('2d');
-      chartInstances.marital = new Chart(maritalCtx, {
-        type: 'doughnut',
-        data: {
-          labels: dbData.marital.labels,
-          datasets: [{
-            data: dbData.marital.values,
-            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(139, 92, 246, 0.8)'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+        await delay(50);
+
+        const maritalCtx = document.getElementById('maritalChart').getContext('2d');
+        chartInstances.marital = new Chart(maritalCtx, {
+          type: 'doughnut',
+          data: {
+            labels: dbData.marital.labels,
+            datasets: [{
+              data: dbData.marital.values,
+              backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(139, 92, 246, 0.8)'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+              legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+            }
           }
-        }
-      });
+        });
 
-      const kasCtx = document.getElementById('kasChart').getContext('2d');
-      chartInstances.kas = new Chart(kasCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
-          datasets: [{
-            label: 'Jumlah (Rp)',
-            data: [
-              financeData.kas.total,
-              financeData.kas.pemasukan,
-              financeData.kas.pengeluaran
-            ],
-            backgroundColor: [
-              'rgba(6, 182, 212, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(239, 68, 68, 0.8)'
-            ],
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: 'y',
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              grid: { color: gridColor },
-              ticks: {
-                color: textColor,
-                callback: function(value) {
-                  if (value >= 1000000) return (value / 1000000).toFixed(0) + 'Jt';
-                  if (value >= 1000) return (value / 1000).toFixed(0) + 'Rb';
-                  return value;
+        await delay(50);
+
+        const kasCtx = document.getElementById('kasChart').getContext('2d');
+        chartInstances.kas = new Chart(kasCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Kas', 'Pemasukan', 'Pengeluaran'],
+            datasets: [{
+              label: 'Jumlah (Rp)',
+              data: [
+                financeData.kas.total,
+                financeData.kas.pemasukan,
+                financeData.kas.pengeluaran
+              ],
+              backgroundColor: [
+                'rgba(6, 182, 212, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(239, 68, 68, 0.8)'
+              ],
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { color: gridColor },
+                ticks: {
+                  color: textColor,
+                  callback: function(value) {
+                    if (value >= 1000000) return (value / 1000000).toFixed(0) + 'Jt';
+                    if (value >= 1000) return (value / 1000).toFixed(0) + 'Rb';
+                    return value;
+                  }
                 }
-              }
-            },
-            y: { grid: { display: false }, ticks: { color: textColor } }
+              },
+              y: { grid: { display: false }, ticks: { color: textColor } }
+            }
           }
-        }
-      });
+        });
 
-      // Render Generus Chart separately (not inside renderCharts to avoid overwriting)
-      await renderGenerusChart();
+        // Render Generus Chart
+        await renderGenerusChart();
       } finally {
         isRenderingCharts = false;
       }
@@ -961,7 +980,7 @@
     async function renderGenerusChart() {
       // Destroy existing chart FIRST before getting context
       safeDestroyChart('generus');
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await delay(100);
 
       const generusCtx = document.getElementById('generusChart');
       if (!generusCtx || !dbData.ketCounts) return;
